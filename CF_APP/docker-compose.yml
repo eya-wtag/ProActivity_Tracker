@@ -1,0 +1,27 @@
+services:
+  database:
+    image: mariadb:latest
+    restart: always
+    environment:
+      MARIADB_ROOT_PASSWORD: "admin123"
+      MARIADB_DATABASE: "TodoList"
+      MARIADB_USER: "yasi"
+      MARIADB_PASSWORD: "admin123"
+    ports:
+      - "3306:3306"
+    volumes:
+      - "./dump.sql:/docker-entrypoint-initdb.d/dump.sql"
+
+  lucee:
+    image: lucee/lucee:latest
+    restart: always
+    environment:
+      LUCEE_ADMIN_PASSWORD: "admin123"
+    volumes:
+      - .:/var/www
+    ports:
+      - "8888:8888"
+
+networks:
+  default:
+    driver: bridge
