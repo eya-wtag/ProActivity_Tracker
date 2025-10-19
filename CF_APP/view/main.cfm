@@ -21,7 +21,8 @@
         }
         .option-button {
             display: block;
-            width: 100%;
+            width: 100%; /* Keeps the width consistent */
+            height: 50px; /* Example: set a fixed height */
             padding: 15px;
             margin-top: 15px;
             border: none;
@@ -29,8 +30,9 @@
             font-size: 1.1em;
             text-decoration: none;
             font-weight: bold;
-            transition: background-color 0.2s;
-        }
+            box-sizing: border-box; /* This is crucial! It ensures padding and border are included in the element's total width and height. */
+            transition: background-color 0.2s, box-shadow 0.2s;
+}
         .login-btn {
             background-color: #28a745;
             color: white;
@@ -39,7 +41,7 @@
             background-color: #1e8745;
         }
         .signup-btn {
-            background-color: #007bff;
+            background-color: #1e80eaf2;
             color: white;
         }
         .signup-btn:hover {
