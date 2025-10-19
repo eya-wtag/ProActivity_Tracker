@@ -34,7 +34,7 @@
         var taskModel = new model.query();
         var myTasks = taskModel.getTasksByUser(session.user_id);
     </cfscript>
-
+   <br>
     <cfif myTasks.recordCount GT 0>
         <cfoutput>
             <cfloop query="myTasks">
@@ -50,7 +50,7 @@
         <p>You have no tasks assigned at this time. 🎉</p>
     </cfif>
 </cfif>
-
+<b>
 
 <form action="index.cfm?action=logout" method="post">
     <button type="submit">Logout</button>
