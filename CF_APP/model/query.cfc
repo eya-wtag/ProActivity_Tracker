@@ -51,7 +51,7 @@ component {
         var sql = "UPDATE tasks SET ";
 
         if (structKeyExists(arguments, "taskName")) {
-            sql &= "task_name = :taskName, ";
+            sql &= "taskName = :taskName, ";
             params.taskName = {value: arguments.taskName, cfsqltype: "cf_sql_varchar"};
         }
         if (structKeyExists(arguments, "description")) {
@@ -79,11 +79,72 @@ component {
     }
     
     public void function deleteTask(required numeric taskId) {
+    // 1️⃣ Fetch the task
+    var taskData = queryExecute(
+        "SELECT id, taskName, description, priority, due_date FROM tasks WHERE id = :taskId",
+        {taskId: {value: taskId, cfsqltype: "cf_sql_integer"}},
+        {datasource: "todolist"}
+    );
+
+    if (taskData.recordCount) {
+        // 2️⃣ Save to done_tasks
+        createDoneTask(
+            taskId = taskData.id[1],
+            taskName = taskData.taskName[1],
+            description = taskData.description[1],
+            priority = taskData.priority[1],
+            dueDate = taskData.due_date[1],
+            completedDate = now()
+        );
+
+        // 3️⃣ Delete from tasks
         queryExecute(
             "DELETE FROM tasks WHERE id = :taskId",
-            {taskId: {value: arguments.taskId, cfsqltype: "cf_sql_integer"}},
-            {datasource: "todolist"} // <-- ADD THIS LINE
+            {taskId: {value: taskId, cfsqltype: "cf_sql_integer"}},
+            {datasource: "todolist"}
         );
     }
+}
+
+   public void function createDoneTask(
+    required numeric taskId,
+    required string taskName,
+    string description = "",
+    string priority = "",
+    date dueDate = "",
+    date completedDate = now()
+) {
+    var params = {
+        taskId: {value: taskId, cfsqltype: "cf_sql_integer"},
+        taskName: {value: taskName, cfsqltype: "cf_sql_varchar"},
+        description: {value: description, cfsqltype: "cf_sql_longvarchar"},
+        priority: {value: priority, cfsqltype: "cf_sql_varchar"},
+        dueDate: {value: dueDate, cfsqltype: "cf_sql_date"},
+        completedDate: {value: completedDate, cfsqltype: "cf_sql_timestamp"}
+    };
+
+    queryExecute(
+        "INSERT INTO done_tasks (original_task_id, taskName, description, priority, due_date, completed_date) " &
+        "VALUES (:taskId, :taskName, :description, :priority, :dueDate, :completedDate)",
+        params,
+        {datasource: "todolist"}
+    );
+}
+public struct function getTask(required numeric taskId) {
+    var q = queryExecute(
+        "SELECT * FROM tasks WHERE id = :taskId",
+        { taskId: { value: arguments.taskId, cfsqltype: "cf_sql_integer" } },
+        { datasource = "todolist" }
+    );
+
+    if (q.recordCount > 0) {
+        // Get the first row as a struct
+        return q.getRow(1);
+    } else {
+        return {};
+    }
+}
+
+
 
 }

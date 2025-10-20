@@ -26,6 +26,11 @@
 
 <hr>
 
+<br>
+
+
+
+
 <h3>Your Tasks:</h3>
 
 <cfif structKeyExists(session, "user_id")>
@@ -50,6 +55,7 @@
         <p>You have no tasks assigned at this time. 🎉</p>
     </cfif>
 </cfif>
+
 
 
 <form action="index.cfm?action=logout" method="post">
