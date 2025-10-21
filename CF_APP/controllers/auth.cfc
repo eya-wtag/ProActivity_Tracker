@@ -21,44 +21,44 @@ component displayname="AuthController" {
     var password = form.password; 
 
 
-    if (!reFind("^[A-Za-z0-9_]{4,15}$", username)) {
- 
-        location(url="index.cfm?action=signup&error=Invalid username. Use only letters, numbers, or underscores.");
-        return;
-    }
-
-
-    if (!isValid("email", email)) {
-        location(url="index.cfm?action=signup&error=Please enter a valid email address.");
-        return;
-    }
-
-    try {
-       
-        var checkSql = "SELECT id FROM users WHERE username = ? OR email = ?";
-        var checkParams = [username, email];
-        var existingUser = queryExecute(checkSql, checkParams, {datasource: "todolist"});
-
-        if (existingUser.recordCount > 0) {
-            location(url="index.cfm?action=signup&error=That username or email is already taken.");
+        if (!reFind("^[A-Za-z0-9_]{4,15}$", username)) {
+    
+            location(url="index.cfm?action=signup&error=Invalid username. Use only letters, numbers, or underscores.");
             return;
         }
 
-        var hashedPassword = hash(password, "SHA-256");
 
-        var sql = "
-            INSERT INTO users (username, email, password_hash)
-            VALUES (?, ?, ?)
-        ";
-        var params = [username, email, hashedPassword];
+        if (!isValid("email", email)) {
+            location(url="index.cfm?action=signup&error=Please enter a valid email address.");
+            return;
+        }
+
+        try {
         
-        queryExecute(sql, params, {datasource: "todolist"});
-        
-        location(url="index.cfm?action=main&success=true");
-        
-    } catch (any e) {
-        location(url="index.cfm?action=signup&error=A server error occurred. Please try again.");
-    }
+            var checkSql = "SELECT id FROM users WHERE username = ? OR email = ?";
+            var checkParams = [username, email];
+            var existingUser = queryExecute(checkSql, checkParams, {datasource: "todolist"});
+
+            if (existingUser.recordCount > 0) {
+                location(url="index.cfm?action=signup&error=That username or email is already taken.");
+                return;
+            }
+
+            var hashedPassword = hash(password, "SHA-256");
+
+            var sql = "
+                INSERT INTO users (username, email, password_hash)
+                VALUES (?, ?, ?)
+            ";
+            var params = [username, email, hashedPassword];
+            
+            queryExecute(sql, params, {datasource: "todolist"});
+            
+            location(url="index.cfm?action=main&success=true");
+            
+        } catch (any e) {
+            location(url="index.cfm?action=signup&error=A server error occurred. Please try again.");
+        }
     }
     
   
