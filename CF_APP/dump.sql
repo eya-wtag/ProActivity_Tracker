@@ -22,18 +22,7 @@ CREATE TABLE IF NOT EXISTS tasks (
     is_completed BOOLEAN DEFAULT FALSE,
     due_date DATE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    status ENUM('pending', 'done',' delete') DEFAULT 'pending',
     CONSTRAINT fk_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
-CREATE TABLE IF NOT EXISTS done_tasks (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    original_task_id INT NOT NULL,
-    task_name VARCHAR(255) NOT NULL,
-    description TEXT,
-    priority VARCHAR(50),
-    due_date DATE,
-    completed_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    CONSTRAINT fk_original_task FOREIGN KEY (original_task_id) REFERENCES tasks(id) ON DELETE CASCADE
-) ENGINE=InnoDB;
