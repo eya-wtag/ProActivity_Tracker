@@ -30,26 +30,27 @@ switch (url.action) {
         include "view/dashboard.cfm";
         break;
         
-    case "createTask":
-        if (ucase(cgi.request_method) eq "POST" && structKeyExists(form, "taskName")) {
-            if (structKeyExists(session, "user_id")) {
-                var taskModel = new model.query();
-                var finalDueDate = (len(trim(form.dueDate)) gt 0) ? form.dueDate : "";
-                taskModel.createTask(
-                    session.user_id,
-                    form.taskName,
-                    form.description,
-                    form.priority,
-                    finalDueDate
-                );
-                location(url="index.cfm?action=dashboard", addtoken=false);
-            } else {
-                location(url="index.cfm?action=login", addtoken=false);
-            }
-        } else {
+   case "createTask": 
+    if (ucase(cgi.request_method) eq "POST" && structKeyExists(form, "taskName")) {
+        if (structKeyExists(session, "user_id")) {
+            var taskModel = new model.query(dsnName="todolist"); 
+            var finalDueDate = (len(trim(form.dueDate)) gt 0) ? form.dueDate : "";
+            taskModel.createTask(
+                userId=session.user_id,
+                taskName=form.taskName,
+                description=form.description,
+                priority=form.priority,
+                dueDate=finalDueDate
+            );
+            
             location(url="index.cfm?action=dashboard", addtoken=false);
+        } else {
+            location(url="index.cfm?action=login", addtoken=false);
         }
-        break;
+    } else {
+        location(url="index.cfm?action=dashboard", addtoken=false);
+    }
+    break;
 
     case "editTask":
         if (ucase(cgi.request_method) eq "POST" && structKeyExists(form, "taskName") && structKeyExists(form, "taskId")) {
@@ -61,7 +62,7 @@ switch (url.action) {
                     form.description,
                     form.priority,
                     form.dueDate,
-                    false // isCompleted
+                    false 
                 );
                 location(url="index.cfm?action=dashboard", addtoken=false);
             } else {
@@ -71,7 +72,7 @@ switch (url.action) {
         else if (structKeyExists(url, "taskId")) {
             var taskModel = new model.query();
             var taskDetails = taskModel.getTask(url.taskId);
-            include "view/editTask.cfm"; // render edit form
+            include "view/editTask.cfm"; 
         } 
         else {
             location(url="index.cfm?action=dashboard", addtoken=false);
@@ -80,18 +81,48 @@ switch (url.action) {
 
     case "deleteTask":
         if (structKeyExists(url, "taskId") && structKeyExists(session, "user_id")) {
-            var taskModel = new model.query();
-            taskModel.deleteTask(url.taskId);
+            
+            var taskModel = new model.query(dsnName="todolist"); 
+            taskModel.deleteTask(url.taskId, session.user_id); 
             location(url="index.cfm?action=dashboard", addtoken=false);
         } else {
+       
+            location(url="index.cfm?action=dashboard", addtoken=false);
+        }
+        break;
+    case "markDone":
+  
+        var DSN_NAME = "todolist"; 
+        
+        if (structKeyExists(url, "taskId") && structKeyExists(session, "user_id")) {
+            var taskModel = new model.query(dsnName=DSN_NAME); 
+
+    
+            taskModel.createDoneTask(
+                taskId=url.taskId,
+                userId=session.user_id 
+            );
+            
+
+            location(url="index.cfm?action=dashboard", addtoken=false);
+        } else {
+     
             location(url="index.cfm?action=dashboard", addtoken=false);
         }
         break;
 
     case "logout":
-        sessionClear(); // Clear session on logout
+
+        sessionInvalidate();
+        cfcookie(
+            name="auth_token",
+            value="",
+            expires="now",  
+            path="/"
+        );
         location(url="index.cfm?action=main", addtoken=false);
         break;
+
 
     case "api":
         include "api/api.cfm";
