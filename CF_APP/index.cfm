@@ -28,15 +28,13 @@ switch (url.action) {
         
     case "dashboard":
         var controller = createObject("component", "controllers.auth");
-        controller.dashboard(); // NEW: Calls the CFC method that handles role-based routing
+        controller.dashboard(); 
         break;
 
     case "adminDashboard":
-    // Ensure admin is logged in
     if (structKeyExists(session, "user") && session.user.user_role eq "admin") {
 
         try {
-            // Load all users for the "Assign Task" dropdown
             var DSN_NAME = "todolist";
             var userModel = new model.query(dsnName=DSN_NAME);
             var getUsers = userModel.getAllUsers();
@@ -45,11 +43,9 @@ switch (url.action) {
             writeOutput("<p style='color:red;'>Error loading users: #e.message#</p>");
         }
 
-        // Include the admin dashboard view
         include "view/admin_dashboard.cfm";
 
     } else {
-        // Not logged in or not admin
         location(url="index.cfm?action=login", addtoken=false);
     }
 
@@ -131,8 +127,6 @@ switch (url.action) {
                 taskId=url.taskId,
                 userId=session.user_id 
             );
-            
-
             location(url="index.cfm?action=dashboard", addtoken=false);
         } else {
      
@@ -164,25 +158,21 @@ switch (url.action) {
     case "assignTask":
     var DSN_NAME = "todolist";
 
-    // Make sure form is submitted via POST and required fields exist
+
     if (ucase(cgi.request_method) eq "POST" && structKeyExists(form, "taskName") && structKeyExists(form, "userId")) {
 
-        // Ensure admin is logged in
         if (structKeyExists(session, "user") && session.user.user_role eq "admin") {
 
-            // Safe defaults for optional fields
             cfparam(name="form.description", default="", type="string");
             cfparam(name="form.priority", default="medium", type="string");
             cfparam(name="form.dueDate", default="", type="string");
 
             try {
-                // Initialize model
+           
                 var taskModel = new model.query(dsnName=DSN_NAME);
 
-                // Prepare due date
                 var finalDueDate = (len(trim(form.dueDate)) gt 0) ? form.dueDate : "";
 
-                // Create task for the selected user
                 taskModel.createTaskForUser(
                     userId = form.userId,
                     taskName = form.taskName,
@@ -194,17 +184,12 @@ switch (url.action) {
             } catch (any e) {
                 writeOutput("<p style='color:red;'>Error assigning task: #e.message#</p>");
             }
-
-            // Redirect back to dashboard after assigning
             location(url="index.cfm?action=dashboard", addtoken=false);
 
         } else {
-            // Not logged in as admin
             location(url="index.cfm?action=login", addtoken=false);
         }
-
     } else {
-        // Invalid POST or missing fields
         location(url="index.cfm?action=dashboard", addtoken=false);
     }
 
@@ -212,19 +197,18 @@ switch (url.action) {
     case "assignTaskByAdmin":
     if (ucase(cgi.request_method) eq "POST" && structKeyExists(form, "taskName") && structKeyExists(form, "userId")) {
 
-        // Ensure admin is logged in
         if (structKeyExists(session, "user") && session.user.user_role eq "admin") {
 
-            // Default optional fields
+       
             cfparam(name="form.description", default="", type="string");
             cfparam(name="form.priority", default="medium", type="string");
             cfparam(name="form.dueDate", default="", type="string");
 
             try {
                 var taskModel = new model.query(dsnName="todolist");
-
-                // Convert dueDate only if not empty
-                var finalDueDate = len(trim(form.dueDate)) ? form.dueDate : "";
+                var finalDueDate = (len(trim(form.dueDate)) gt 0) 
+                   ? form.dueDate 
+                   : dateFormat(now(), "yyyy-mm-dd");
 
                 var result = taskModel.createTaskForUser(
                     userId=form.userId,

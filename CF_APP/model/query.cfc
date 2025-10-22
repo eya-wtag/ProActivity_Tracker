@@ -29,14 +29,11 @@ component {
             );
             
         } catch (any e) {
-            // Log the detailed error (optional but recommended)
-            // log.error("Error in getTasksByUser: " & e.message & " - " & e.detail);
-            
-            // Re-throw a controlled, application-level error
+   
             throw(
                 type="Database.ReadError", 
                 message="Failed to retrieve tasks for user ID " & arguments.userId,
-                detail=e.message // Pass the underlying error message for debugging
+                detail=e.message 
             );
         }
         
@@ -355,7 +352,7 @@ public struct function createTaskByAdmin(
     // Get all users
     public query function getAllUsers() {
         return queryExecute(
-            "SELECT id, username FROM users ORDER BY username",
+            "SELECT id, username FROM users where user_role='user' ORDER BY username",
             {},
             {datasource=this.dsn}
         );

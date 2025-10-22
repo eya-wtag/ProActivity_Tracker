@@ -96,6 +96,7 @@
                         <td>
                             <a href="index.cfm?action=editTask&amp;taskId=#allTasks.id#">Edit</a> |
                             <a href="index.cfm?action=deleteTask&amp;taskId=#allTasks.id#">Delete</a>
+                            
                         </td>
                     </tr>
                 </cfloop>

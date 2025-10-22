@@ -76,10 +76,8 @@ component displayname="AuthController" {
             session.user_id = result.user.id;
             session.user_role = result.user.user_role;
             if (session.user_role eq "admin") {
-            // Redirect admins to the specific admin dashboard action
             location(url="index.cfm?action=adminDashboard");
         } else {
-            // Redirect all other roles (like 'user') to the generic dashboard action
             location(url="index.cfm?action=dashboard"); 
         }
 
@@ -113,13 +111,11 @@ component displayname="AuthController" {
 
     public void function dashboard() {
 
-    // Check if user is logged in
     if (!structKeyExists(session, "user") OR !structKeyExists(session, "user_role")) {
         location(url="index.cfm?action=auth.showLoginForm");
         return;
     }
 
-    // Redirect or include dashboard based on role
     switch (session["user_role"]) {
         case "admin":
             location(url="index.cfm?action=adminDashboard");
@@ -128,7 +124,6 @@ component displayname="AuthController" {
             include "/view/dashboard.cfm";
             break;
         default:
-            // Unknown role, go to login
             location(url="index.cfm?action=auth.showLoginForm");
     }
 }
