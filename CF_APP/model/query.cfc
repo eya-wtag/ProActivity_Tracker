@@ -307,15 +307,12 @@ public struct function createTaskByAdmin(
     return response;
 }
 
-<cfcomponent output="false" hint="Database query model">
 
-    <cfscript>
-    // Property for DSN
     property name="dsn" type="string";
 
     // Initialize component with DSN
     public any function init(required string dsnName) {
-        variables.dsn = dsnName;
+        this.dsn = dsnName;
         return this;
     }
 
@@ -344,7 +341,7 @@ public struct function createTaskByAdmin(
                 dueDate: { value=(len(arguments.dueDate) ? arguments.dueDate : null), cfsqltype="cf_sql_date" }
             };
 
-            queryExecute(sql, params, {datasource=variables.dsn});
+            queryExecute(sql, params, {datasource=this.dsn});
             response.success = true;
 
         } catch(any e) {
@@ -360,7 +357,7 @@ public struct function createTaskByAdmin(
         return queryExecute(
             "SELECT id, username FROM users ORDER BY username",
             {},
-            {datasource=variables.dsn}
+            {datasource=this.dsn}
         );
     }
 
@@ -374,7 +371,7 @@ public struct function createTaskByAdmin(
             ORDER BY t.created_at DESC
             ",
             {},
-            {datasource=variables.dsn}
+            {datasource=this.dsn}
         );
     }
     
@@ -403,7 +400,7 @@ public struct function createTaskForUser(
                 dueDate: { value=(len(arguments.dueDate) ? arguments.dueDate : null), cfsqltype="cf_sql_date" }
             };
 
-            queryExecute(sql, params, {datasource=variables.dsn});
+            queryExecute(sql, params, {datasource=this.dsn});
             response.success = true;
 
         } catch(any e) {
