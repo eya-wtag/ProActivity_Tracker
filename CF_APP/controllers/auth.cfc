@@ -8,7 +8,7 @@ component displayname="AuthController" {
     }
 
     public void function showLoginForm() {
-        include "/views/main.cfm";
+        include "/view/main.cfm";
     }
 
     public void function showSignupForm() {
@@ -74,8 +74,14 @@ component displayname="AuthController" {
             sessionRotate();
             session.user = result.user;
             session.user_id = result.user.id;
-
-            location(url="index.cfm?action=dashboard");
+            session.user_role = result.user.user_role;
+            if (session.user_role eq "admin") {
+            // Redirect admins to the specific admin dashboard action
+            location(url="index.cfm?action=adminDashboard");
+        } else {
+            // Redirect all other roles (like 'user') to the generic dashboard action
+            location(url="index.cfm?action=dashboard"); 
+        }
 
         } else {
             location(url="index.cfm?action=no_account");
@@ -106,12 +112,27 @@ component displayname="AuthController" {
     }
 
     public void function dashboard() {
-       
-        if (!session.keyExists("user")) {
-            location(url="index.cfm?action=auth.showLoginForm");
-        }
-        include "/views/user/dashboard.cfm";
+
+    // Check if user is logged in
+    if (!structKeyExists(session, "user") OR !structKeyExists(session, "user_role")) {
+        location(url="index.cfm?action=auth.showLoginForm");
+        return;
     }
+
+    // Redirect or include dashboard based on role
+    switch (session["user_role"]) {
+        case "admin":
+            location(url="index.cfm?action=adminDashboard");
+            break;
+        case "user":
+            include "/view/dashboard.cfm";
+            break;
+        default:
+            // Unknown role, go to login
+            location(url="index.cfm?action=auth.showLoginForm");
+    }
+}
+
 
 
     // public void function createTask(
