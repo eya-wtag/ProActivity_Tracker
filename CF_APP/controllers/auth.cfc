@@ -135,32 +135,7 @@ component displayname="AuthController" {
 
 
 
-    // public void function createTask(
-    //     required string taskName,
-    //     string description = '',
-    //     string priority = 'medium',
-    //     date dueDate
-    // ) {
-    //     var taskModel = new models.TaskModel();
-
-    //     // The 'arguments' scope is automatically available in script-based functions
-    //     arguments.userId = session.user_id;
-
-    //     taskModel.createTask(argumentCollection = arguments);
-
-    //     location(url="index.cfm?action=dashboard", addtoken="false");
-    // }
-    
-    // public void function deleteTask(required numeric taskId) {
-    //     var taskModel = new models.TaskModel();
-
-    //     taskModel.deleteTask(arguments.taskId);
-
-    //     location(url="index.cfm?action=dashboard", addtoken="false");
-    // }
-    
-    // </cfcomponent>
-
+   
 
 }
 </cfscript>
