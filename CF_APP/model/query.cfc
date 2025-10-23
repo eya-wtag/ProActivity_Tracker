@@ -239,4 +239,44 @@ component {
         
         return tasksQuery;
     }
+    public query function searchTasks(
+        required numeric userId,
+        string keyword = "",
+        string status = "",
+        string priority = "",
+        string sortBy = "due_date",
+        string sortOrder = "ASC"
+    ) {
+
+        var sql = "
+            SELECT *
+            FROM tasks
+            WHERE user_id = :userId
+        ";
+        var params = { userId = arguments.userId };
+
+        // Keyword search
+        if (len(trim(arguments.keyword))) {
+            sql &= " AND (taskname LIKE :keyword OR description LIKE :keyword)";
+            params.keyword = "%" & arguments.keyword & "%";
+        }
+
+        // Status filter
+        if (len(trim(arguments.status))) {
+            sql &= " AND is_completed = :status";
+            params.status = arguments.status;
+        }
+
+        // Priority filter
+        if (len(trim(arguments.priority))) {
+            sql &= " AND priority = :priority";
+            params.priority = arguments.priority;
+        }
+
+        // Sorting
+        sql &= " ORDER BY " & arguments.sortBy & " " & arguments.sortOrder;
+
+        return queryExecute(sql, params, {datasource: "todolist"});
+    }
+
 }
