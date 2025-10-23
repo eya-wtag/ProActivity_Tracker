@@ -1,4 +1,5 @@
-<cfswitch expression="#CGI.REQUEST_METHOD#"> 
+<cfswitch 
+    expression="#CGI.REQUEST_METHOD#"> 
 
     <cfcase value="POST">
         

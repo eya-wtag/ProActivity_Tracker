@@ -1,0 +1,819 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Global Body Styles - Consistent across all pages */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    padding: 20px;
+    /* Added to center content on focused pages (edit/login/error/signup) */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* --- Container Styles (for different page layouts) --- */
+
+/* Main Dashboard/List Container */
+.container {
+    max-width: 1400px; /* Max-width varies, using largest */
+    margin: 0 auto;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+    /* Overrides for centered pages */
+    width: initial;
+    min-height: initial;
+}
+
+/* Edit Form Container */
+.edit-container {
+    background: white;
+    padding: 40px;
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    width: 100%;
+    max-width: 600px;
+    animation: slideUp 0.5s ease-out;
+}
+
+/* Landing/Login Container */
+.landing-box {
+    background: white;
+    padding: 50px 40px;
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    width: 100%;
+    max-width: 450px;
+    text-align: center;
+    animation: slideUp 0.5s ease-out;
+}
+
+/* Error Page Container */
+.error-container {
+    background: white;
+    padding: 50px 40px;
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    width: 100%;
+    max-width: 500px;
+    text-align: center;
+    animation: shake 0.5s ease-out, fadeIn 0.5s ease-out;
+}
+
+/* Signup Form Container (same styles as .landing-box) */
+/* .container for signup is essentially the same as .landing-box, adjusting max-width to 450px */
+.container.signup-form {
+    max-width: 450px;
+    animation: slideUp 0.5s ease-out;
+    padding: 40px;
+}
+
+/* --- Keyframe Animations --- */
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-10px); }
+    75% { transform: translateX(10px); }
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+.error-icon {
+    font-size: 4em;
+    margin-bottom: 20px;
+    animation: pulse 2s infinite;
+}
+
+/* --- Header and Title Styles --- */
+h1 {
+    color: #333;
+    margin-bottom: 15px;
+    font-size: 2em;
+    font-weight: 700;
+}
+
+h2 {
+    color: #333;
+    font-size: 2em;
+    margin-bottom: 30px;
+    text-align: center;
+    padding-bottom: 15px;
+    border-bottom: 3px solid #667eea;
+}
+
+/* Specific h2 overrides */
+.edit-container h2 {
+    color: #333;
+}
+.error-container h2 {
+    color: #dc2626;
+    border-bottom: none;
+}
+.container.signup-form h2 {
+    padding-bottom: initial;
+    border-bottom: initial;
+    margin-bottom: 10px;
+}
+
+
+h4 {
+    color: #666;
+    font-size: 1.2em;
+    margin-bottom: 30px;
+    font-weight: 400;
+}
+
+.subtitle {
+    text-align: center;
+    color: #666;
+    margin-bottom: 30px;
+    font-size: 0.95em;
+    line-height: 1.5;
+}
+
+/* Dashboard-specific header */
+.header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 30px 40px;
+    text-align: center;
+}
+
+.header h2 {
+    font-size: 2em;
+    margin-bottom: 10px;
+    padding-bottom: initial;
+    border-bottom: initial;
+}
+
+.header h3 {
+    font-size: 1.2em;
+    font-weight: 300;
+    opacity: 0.9;
+}
+
+.content {
+    padding: 40px;
+}
+
+.section {
+    margin-bottom: 40px;
+}
+
+.section-title {
+    font-size: 1.5em;
+    color: #333;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 3px solid #667eea;
+    display: inline-block;
+}
+
+.form-container {
+    background: #f8f9fa;
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+}
+
+/* --- Form Elements --- */
+.form-group {
+    margin-bottom: 25px; /* Using largest margin for consistency */
+}
+
+label {
+    display: block;
+    margin-bottom: 8px;
+    color: #555;
+    font-weight: 600;
+    font-size: 0.95em;
+}
+
+input[type="text"],
+input[type="date"],
+input[type="email"],
+input[type="password"],
+textarea,
+select {
+    width: 100%;
+    padding: 12px 15px; /* Using 12px vertical padding as base */
+    border: 2px solid #e0e0e0;
+    border-radius: 10px; /* Using 10px as base */
+    font-size: 1em;
+    transition: all 0.3s ease;
+    font-family: inherit;
+}
+
+input[type="text"]:focus,
+input[type="date"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus,
+textarea:focus,
+select:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1); /* Using 4px shadow as base */
+}
+
+input[type="text"]::placeholder,
+input[type="email"]::placeholder,
+input[type="password"]::placeholder {
+    color: #999;
+}
+
+textarea {
+    resize: vertical;
+    min-height: 120px; /* Using largest min-height */
+}
+
+select option {
+    padding: 10px;
+}
+
+.input-icon {
+    position: relative;
+}
+
+.input-icon input {
+    padding-left: 45px;
+}
+
+.input-icon::before {
+    content: '';
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 20px;
+    height: 20px;
+    background-size: contain;
+    opacity: 0.5;
+    /* Add specific icon styles here if needed, e.g., for username, email */
+    /* .input-icon.user::before { background-image: url('user.svg'); } */
+}
+
+/* Password Strength Indicator */
+.password-strength {
+    margin-top: 8px;
+    font-size: 0.85em;
+    color: #666;
+}
+
+.strength-bar {
+    height: 4px;
+    background: #e0e0e0;
+    border-radius: 2px;
+    margin-top: 5px;
+    overflow: hidden;
+}
+
+.strength-bar-fill {
+    height: 100%;
+    width: 0%;
+    transition: all 0.3s ease;
+    border-radius: 2px;
+}
+
+
+/* --- Buttons --- */
+button {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 14px 30px; /* Using larger padding for standard buttons */
+    border: none;
+    border-radius: 10px; /* Using 10px for standard buttons */
+    font-size: 1.1em; /* Using larger font for standard buttons */
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+}
+
+button:active {
+    transform: translateY(0);
+}
+
+/* Grouping for edit/save buttons */
+.button-group {
+    display: flex;
+    gap: 15px;
+    margin-top: 30px;
+}
+
+.button-group button {
+    flex: 1;
+}
+
+/* Specific button styles */
+.logout-btn {
+    background: #ef4444;
+    box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
+}
+
+.logout-btn:hover {
+    box-shadow: 0 6px 20px rgba(239, 68, 68, 0.6);
+}
+
+.option-button {
+    display: block;
+    width: 100%;
+    padding: 14px;
+    margin-top: 15px;
+    border: none;
+    border-radius: 10px;
+    font-size: 1.1em;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    text-align: center;
+}
+
+.login-btn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+.signup-btn {
+    background: white;
+    color: #667eea;
+    border: 2px solid #667eea;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.signup-btn:hover {
+    background: #667eea;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+/* Used for signup form submit button */
+button.signup-btn {
+    width: 100%;
+    border: none;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    margin-top: 10px;
+}
+
+/* --- Links and Utility Elements --- */
+.cancel-link {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 14px 30px;
+    border-radius: 10px;
+    font-size: 1.1em;
+    font-weight: 600;
+    text-decoration: none;
+    color: #667eea;
+    background: white;
+    border: 2px solid #667eea;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.cancel-link:hover {
+    background: #667eea;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+.cancel-link:active {
+    transform: translateY(0);
+}
+
+.login-link {
+    text-align: center;
+    margin-top: 25px;
+    color: #666;
+    font-size: 0.95em;
+}
+
+.login-link a {
+    color: #667eea;
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.3s ease;
+}
+
+.login-link a:hover {
+    color: #764ba2;
+    text-decoration: underline;
+}
+
+.divider, .form-divider {
+    text-align: center;
+    margin: 25px 0;
+    position: relative;
+}
+
+.divider::before, .form-divider::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    width: 100%;
+    height: 1px;
+    background: #e0e0e0;
+}
+
+.divider span, .form-divider span {
+    background: white;
+    padding: 0 15px;
+    position: relative;
+    color: #999;
+    font-size: 0.9em;
+}
+
+/* --- Messaging & Badges --- */
+
+/* Success Message (used on landing/login) */
+.message {
+    background: #d1fae5;
+    color: #065f46;
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    border-left: 4px solid #10b981;
+    font-weight: 600;
+    font-size: 0.9em;
+}
+
+/* Error/Alert Messages (used on landing/login/error/signup) */
+.message-error, .error, .error-message {
+    background: #fee2e2;
+    color: #991b1b;
+    padding: 15px 20px; /* Using larger padding for error messages */
+    border-radius: 10px;
+    margin-bottom: 20px;
+    border-left: 4px solid #dc2626;
+    font-size: 0.95em;
+    line-height: 1.6;
+}
+.error {
+    text-align: center;
+    font-size: 0.9em;
+}
+
+/* Priority Indicators (small circle next to label in edit form) */
+.priority-indicator {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    margin-right: 8px;
+}
+
+/* Priority Badges (in table/list view) */
+.priority-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 15px;
+    font-size: 0.85em;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.priority-low, .priority-indicator.priority-low {
+    background: #dbeafe;
+    color: #2563eb;
+}
+
+.priority-medium, .priority-indicator.priority-medium {
+    background: #fef3c7;
+    color: #d97706;
+}
+
+.priority-high, .priority-indicator.priority-high {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+/* Status Badges (in table view) */
+.status-badge {
+    display: inline-block;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.85em;
+    font-weight: 600;
+}
+
+.status-done {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.status-pending {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.status-deleted {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+/* --- Task List/Table Styles --- */
+.task-list {
+    list-style: none;
+}
+
+.task-item {
+    background: white;
+    border: 2px solid #e0e0e0;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 15px;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.task-item::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 5px;
+    background: #667eea;
+}
+
+.task-item.done {
+    background: #f0f9ff;
+    border-color: #4ade80;
+}
+
+.task-item.done::before {
+    background: #4ade80;
+}
+
+.task-item.deleted {
+    background: #fff1f2;
+    border-color: #fca5a5;
+    opacity: 0.7;
+}
+
+.task-item.deleted::before {
+    background: #ef4444;
+}
+
+.task-item:hover {
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+}
+
+.task-item strong {
+    color: #333;
+    font-size: 1.1em;
+    display: block;
+    margin-bottom: 8px;
+}
+
+.task-priority {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.85em;
+    font-weight: 600;
+    margin-left: 10px;
+}
+
+.task-date {
+    color: #666;
+    font-size: 0.9em;
+    margin-top: 5px;
+    display: block;
+}
+
+.task-actions {
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid #e0e0e0;
+}
+
+.task-actions a {
+    color: #667eea;
+    text-decoration: none;
+    font-weight: 600;
+    margin-right: 15px;
+    font-size: 0.9em;
+    transition: color 0.3s ease;
+}
+
+.task-actions a:hover {
+    color: #764ba2;
+    text-decoration: underline;
+}
+
+/* Task Table */
+.table-container {
+    overflow-x: auto;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 800px;
+}
+
+th {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 15px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 0.95em;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+td {
+    padding: 15px;
+    border-bottom: 1px solid #e0e0e0;
+    color: #333;
+}
+
+tr:hover {
+    background: #f8f9fa;
+}
+
+tr:last-child td {
+    border-bottom: none;
+}
+
+.action-links a {
+    color: #667eea;
+    text-decoration: none;
+    font-weight: 600;
+    margin-right: 10px;
+    font-size: 0.9em;
+    transition: color 0.3s ease;
+}
+
+.action-links a:hover {
+    color: #764ba2;
+    text-decoration: underline;
+}
+
+/* --- Empty States & Miscellaneous --- */
+.empty-state {
+    text-align: center;
+    padding: 40px;
+    color: #999;
+    font-size: 1.1em;
+}
+
+.empty-state span {
+    font-size: 2em;
+    display: block;
+    margin-bottom: 10px;
+}
+
+.divider {
+    height: 2px;
+    background: linear-gradient(to right, transparent, #e0e0e0, transparent);
+    margin: 40px 0;
+}
+
+.logout-container {
+    text-align: center;
+    padding: 20px 0;
+}
+
+.task-id {
+    font-weight: 600;
+    color: #666;
+}
+
+.user-name {
+    font-weight: 600;
+    color: #667eea;
+}
+
+.welcome-icon {
+    font-size: 3em;
+    margin-bottom: 20px;
+}
+
+.helper-text {
+    margin-top: 20px;
+    color: #666;
+    font-size: 0.9em;
+    line-height: 1.5;
+}
+
+.helper-text strong {
+    color: #333;
+}
+
+
+/* --- Media Queries --- */
+@media (max-width: 768px) {
+    .content {
+        padding: 20px;
+    }
+
+    .header {
+        padding: 20px;
+    }
+
+    .header h2 {
+        font-size: 1.5em;
+    }
+
+    .form-container {
+        padding: 20px;
+    }
+
+    table {
+        font-size: 0.9em;
+    }
+
+    th, td {
+        padding: 10px;
+    }
+
+    .action-links a,
+    .task-actions a {
+        display: inline-block;
+        margin-right: 10px;
+        margin-bottom: 5px;
+    }
+}
+
+@media (max-width: 480px) {
+    .edit-container,
+    .landing-box,
+    .error-container,
+    .container.signup-form {
+        padding: 30px 25px;
+    }
+
+    h1, h2 {
+        font-size: 1.75em;
+    }
+
+    h4 {
+        font-size: 1em;
+    }
+
+    .error-icon {
+        font-size: 3em;
+    }
+
+    .button-group {
+        flex-direction: column;
+    }
+
+    button,
+    .cancel-link,
+    .option-button {
+        width: 100%;
+        font-size: 1em;
+        padding: 12px;
+    }
+}

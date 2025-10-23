@@ -1,6 +1,7 @@
 component {
 
-    property name="dsn" type="string"; 
+    property name="dsn" 
+    type="string"; 
 
     public function init(required string dsnName) {
         this.dsn = arguments.dsnName;
@@ -13,8 +14,14 @@ component {
 
         try {
             var params = {
-                userId: {value: arguments.userId, cfsqltype: "cf_sql_integer"},
-                statusFilter: {value: arguments.statusFilter, cfsqltype: "cf_sql_varchar"}
+                userId: {
+                    value: arguments.userId, 
+                    cfsqltype: "cf_sql_integer"
+                },
+                statusFilter: {
+                    value: arguments.statusFilter, 
+                    cfsqltype: "cf_sql_varchar"
+                }
             };
             
             tasksQuery = queryExecute(
@@ -57,7 +64,12 @@ component {
         try {
             queryExecute(
                 "INSERT INTO tasks (user_id, taskName, description, priority, due_date, status)
-                VALUES (:userId, :taskName, :description, :priority, :dueDate, 'pending')", 
+                VALUES (
+                    :userId, 
+                    :taskName, 
+                    :description, 
+                    :priority, 
+                    :dueDate,)", 
                 {
                     userId:      {value: arguments.userId,      cfsqltype: "cf_sql_integer"},
                     taskName:    {value: arguments.taskName,    cfsqltype: "cf_sql_varchar"},
@@ -283,7 +295,13 @@ public struct function createTaskByAdmin(
         var dbDueDate = (len(trim(dueDate)) eq 0) ? null : dateFormat(dueDate, "yyyy-mm-dd");
 
         queryExecute(
-            "INSERT INTO tasks (user_id, taskName, description, priority, due_date, status, created_at)
+            "INSERT INTO tasks (
+                user_id, taskName, 
+                description, 
+                priority, 
+                due_date, 
+                status, 
+                created_at)
              VALUES (:userId, :taskName, :description, :priority, :dueDate, 0, NOW())",
             {
                 userId: { value=userId, cfsqltype="cf_sql_integer" },

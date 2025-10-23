@@ -1,131 +1,172 @@
-<cfoutput>
-    <h2>Hello, #ucase(session.user.username)# !</h2>
-    <h3>Welcome to the Dashboard! </h3>
-</cfoutput>
-
-<h3>Add a New Task</h3> 
-<form action="index.cfm?action=createTask" method="post">
-    <label for="taskName">Task Name:</label>
-    <input type="text" id="taskName" name="taskName" required><br><br>
-
-    <label for="description">Description:</label>
-    <textarea id="description" name="description"></textarea><br><br>
-
-    <label for="priority">Priority:</label>
-    <select id="priority" name="priority">
-        <option value="low">Low</option>
-        <option value="medium" selected>Medium</option>
-        <option value="high">High</option>
-    </select><br><br>
-
-    <label for="dueDate">Due Date:</label>
-    <input type="date" id="dueDate" name="dueDate"><br><br>
-
-    <button type="submit">Add Task</button>
-</form>
-
-<hr>
-
-<br>
-
-<h3>Your Pending Tasks:</h3>
-
-<cfif structKeyExists(session, "user_id")>
-    <cfscript>
-
-        var DSN_NAME = "todolist"; 
-        
-        // Data retrieval for PENDING tasks
-        var taskModel = new model.query(dsnName=DSN_NAME);
-        var pendingTasks = taskModel.getTasksByUser(session.user_id, "pending");
-    </cfscript>
-
-    <cfif pendingTasks.recordCount GT 0>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Manager Dashboard</title>
+    <link rel="stylesheet" href="view/user_dashboard.css">
+</head>
+<body>
+    <div class="container">
         <cfoutput>
-            <ul>
-            <cfloop query="pendingTasks">
-                <div class="task-item">
-                    <li><strong>#pendingTasks.taskName#</strong> (Priority: #pendingTasks.priority#) <br>
-                    Due: #DateFormat(pendingTasks.due_date, "mm/dd/yyyy")#
-                    </li>
-                    <div style="margin-top: 5px;">
-                        <a href="index.cfm?action=editTask&amp;taskId=#pendingTasks.id#">Edit</a>
-                        | <a href="index.cfm?action=markDone&amp;taskId=#pendingTasks.id#">Mark Done</a> 
-                        | <a href="index.cfm?action=deleteTask&amp;taskId=#pendingTasks.id#">Delete</a>
-                    </div>
-                </div>
-            </cfloop>
-            </ul>
+        <div class="header">
+            <h2>Hello, #ucase(session.user.username)#!</h2>
+            <h3>Welcome to the Dashboard!</h3>
+        </div>
         </cfoutput>
-    <cfelse>
-        <p>You have no pending tasks. 🎉</p>
-    </cfif>
-</cfif>
 
-<hr>
+        <div class="content">
+            <!-- Add Task Form -->
+            <div class="section">
+                <h3 class="section-title">Add a New Task</h3>
+                <div class="form-container">
+                    <form action="index.cfm?action=createTask" method="post">
+                        <div class="form-group">
+                            <label for="taskName">Task Name:</label>
+                            <input type="text" id="taskName" name="taskName" required>
+                        </div>
 
-<h3>Your Completed Tasks:</h3>
+                        <div class="form-group">
+                            <label for="description">Description:</label>
+                            <textarea id="description" name="description"></textarea>
+                        </div>
 
-<cfif structKeyExists(session, "user_id")>
-    <cfscript>
-        // Data retrieval for DONE tasks
-        var taskModel = new model.query(dsnName=DSN_NAME);
-        var doneTasks = taskModel.getTasksByUser(session.user_id, "done");
-    </cfscript>
+                        <div class="form-group">
+                            <label for="priority">Priority:</label>
+                            <select id="priority" name="priority">
+                                <option value="low">Low</option>
+                                <option value="medium" selected>Medium</option>
+                                <option value="high">High</option>
+                            </select>
+                        </div>
 
-    <cfif doneTasks.recordCount GT 0>
-        <cfoutput>
-            <ul>
-            <cfloop query="doneTasks">
-                <div class="task-item done">
-                    <li><strong>#doneTasks.taskName#</strong> (Priority: #doneTasks.priority#) <br>
-                    Completed (Created At): #DateFormat(doneTasks.created_at, "mm/dd/yyyy")#
-                    </li>
-                    <div style="margin-top: 5px;">
-                        <a href="index.cfm?action=deleteTask&amp;taskId=#doneTasks.id#">Delete Permanently</a>
-                    </div>
+                        <div class="form-group">
+                            <label for="dueDate">Due Date:</label>
+                            <input type="date" id="dueDate" name="dueDate" value="<cfoutput>#dateFormat(now(), 'yyyy-mm-dd')#</cfoutput>">
+                        </div>
+
+                        <button type="submit">Add Task</button>
+                    </form>
                 </div>
-            </cfloop>
-            </ul>
-        </cfoutput>
-    <cfelse>
-        <p>No tasks completed yet. ✅</p>
-    </cfif>
-</cfif>
+            </div>
 
-<hr>
+            <div class="divider"></div>
 
- <h3>Deleted/Archived Tasks:</h3>
+            <!-- Pending Tasks -->
+            <div class="section">
+                <h3 class="section-title">Your Pending Tasks</h3>
 
-<cfif structKeyExists(session, "user_id")>
-    <cfscript>
-        // You need a new model function or modify getTasksByUser to handle 'delete' status
-        var taskModel = new model.query(dsnName=DSN_NAME);
-        var deletedTasks = taskModel.getDeletedTasksByUser(session.user_id); 
-    </cfscript>
+                <cfif structKeyExists(session, "user_id")>
+                    <cfscript>
+                        var DSN_NAME = "todolist"; 
+                        var taskModel = new model.query(dsnName=DSN_NAME);
+                        var pendingTasks = taskModel.getTasksByUser(session.user_id, "pending");
+                    </cfscript>
 
-    <cfif deletedTasks.recordCount GT 0>
-        <cfoutput>
-            <ul>
-            <cfloop query="deletedTasks">
-             
-                <div class="task-item deleted">
-                    <li><strong>#deletedTasks.taskName#</strong> (Priority: #deletedTasks.priority#)
-                    Deleted (Status): #deletedTasks.status# 
-                    </li>
-                   
-                </div>
-            </cfloop>
-            </ul>
-        </cfoutput>
-    <cfelse>
-        <p>No tasks currently deleted. 🗑️</p>
-    </cfif>
-</cfif>
+                    <cfif pendingTasks.recordCount GT 0>
+                        <cfoutput>
+                            <ul class="task-list">
+                            <cfloop query="pendingTasks">
+                                <li class="task-item">
+                                    <strong>#pendingTasks.taskName#</strong>
+                                    <span class="task-priority priority-#lcase(pendingTasks.priority)#">#ucase(pendingTasks.priority)#</span>
+                                    <span class="task-date">Due: #DateFormat(pendingTasks.due_date, "mm/dd/yyyy")#</span>
+                                    <div class="task-actions">
+                                        <a href="index.cfm?action=editTask&amp;taskId=#pendingTasks.id#">Edit</a>
+                                        <a href="index.cfm?action=markDone&amp;taskId=#pendingTasks.id#">Mark Done</a>
+                                        <a href="index.cfm?action=deleteTask&amp;taskId=#pendingTasks.id#">Delete</a>
+                                    </div>
+                                </li>
+                            </cfloop>
+                            </ul>
+                        </cfoutput>
+                    <cfelse>
+                        <div class="empty-state">
+                            <span>🎉</span>
+                            <p>You have no pending tasks.</p>
+                        </div>
+                    </cfif>
+                </cfif>
+            </div>
 
-<hr>
+            <div class="divider"></div>
 
-<form action="index.cfm?action=logout" method="post">
-    <button type="submit">Logout</button>
-</form>
+            <!-- Completed Tasks -->
+            <div class="section">
+                <h3 class="section-title">Your Completed Tasks</h3>
 
+                <cfif structKeyExists(session, "user_id")>
+                    <cfscript>
+                        var taskModel = new model.query(dsnName=DSN_NAME);
+                        var doneTasks = taskModel.getTasksByUser(session.user_id, "done");
+                    </cfscript>
+
+                    <cfif doneTasks.recordCount GT 0>
+                        <cfoutput>
+                            <ul class="task-list">
+                            <cfloop query="doneTasks">
+                                <li class="task-item done">
+                                    <strong>#doneTasks.taskName#</strong>
+                                    <span class="task-priority priority-#lcase(doneTasks.priority)#">#ucase(doneTasks.priority)#</span>
+                                    <span class="task-date">Completed: #DateFormat(doneTasks.created_at, "mm/dd/yyyy")#</span>
+                                    <div class="task-actions">
+                                        <a href="index.cfm?action=deleteTask&amp;taskId=#doneTasks.id#">Delete Permanently</a>
+                                    </div>
+                                </li>
+                            </cfloop>
+                            </ul>
+                        </cfoutput>
+                    <cfelse>
+                        <div class="empty-state">
+                            <span>✅</span>
+                            <p>No tasks completed yet.</p>
+                        </div>
+                    </cfif>
+                </cfif>
+            </div>
+
+            <div class="divider"></div>
+
+            <!-- Deleted/Archived Tasks -->
+            <div class="section">
+                <h3 class="section-title">Deleted/Archived Tasks</h3>
+
+                <cfif structKeyExists(session, "user_id")>
+                    <cfscript>
+                        var taskModel = new model.query(dsnName=DSN_NAME);
+                        var deletedTasks = taskModel.getDeletedTasksByUser(session.user_id); 
+                    </cfscript>
+
+                    <cfif deletedTasks.recordCount GT 0>
+                        <cfoutput>
+                            <ul class="task-list">
+                            <cfloop query="deletedTasks">
+                                <li class="task-item deleted">
+                                    <strong>#deletedTasks.taskName#</strong>
+                                    <span class="task-priority priority-#lcase(deletedTasks.priority)#">#ucase(deletedTasks.priority)#</span>
+                                    <span class="task-date">Status: #deletedTasks.status#</span>
+                                </li>
+                            </cfloop>
+                            </ul>
+                        </cfoutput>
+                    <cfelse>
+                        <div class="empty-state">
+                            <span>🗑️</span>
+                            <p>No tasks currently deleted.</p>
+                        </div>
+                    </cfif>
+                </cfif>
+            </div>
+
+            <div class="divider"></div>
+
+            <!-- Logout -->
+            <div class="logout-container">
+                <form action="index.cfm?action=logout" method="post">
+                    <button type="submit" class="logout-btn">Logout</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
