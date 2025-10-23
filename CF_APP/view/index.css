@@ -1,80 +1,78 @@
+/* ======================================
+   GLOBAL STYLES
+   ====================================== */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
-/* Global Body Styles - Consistent across all pages */
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     min-height: 100vh;
     padding: 20px;
-    /* Added to center content on focused pages (edit/login/error/signup) */
-    display: flex;
-    align-items: center;
-    justify-content: center;
 }
 
-/* --- Container Styles (for different page layouts) --- */
-
-/* Main Dashboard/List Container */
+/* ======================================
+   CONTAINER STYLES
+   ====================================== */
 .container {
-    max-width: 1400px; /* Max-width varies, using largest */
+    max-width: 1200px;
     margin: 0 auto;
     background: white;
     border-radius: 20px;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
     overflow: hidden;
-    /* Overrides for centered pages */
-    width: initial;
-    min-height: initial;
 }
 
-/* Edit Form Container */
-.edit-container {
+.admin-container {
+    max-width: 1400px;
+    margin: 0 auto;
     background: white;
-    padding: 40px;
     border-radius: 20px;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-    width: 100%;
-    max-width: 600px;
-    animation: slideUp 0.5s ease-out;
+    overflow: hidden;
 }
 
-/* Landing/Login Container */
-.landing-box {
-    background: white;
-    padding: 50px 40px;
-    border-radius: 20px;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-    width: 100%;
-    max-width: 450px;
-    text-align: center;
-    animation: slideUp 0.5s ease-out;
-}
-
-/* Error Page Container */
+.landing-box,
+.edit-container,
 .error-container {
     background: white;
     padding: 50px 40px;
     border-radius: 20px;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
     width: 100%;
-    max-width: 500px;
+    max-width: 450px;
     text-align: center;
+    animation: slideUp 0.5s ease-out;
+}
+
+.landing-box {
+    max-width: 450px;
+}
+
+.edit-container {
+    max-width: 600px;
+    text-align: left;
+}
+
+.error-container {
+    max-width: 500px;
     animation: shake 0.5s ease-out, fadeIn 0.5s ease-out;
 }
 
-/* Signup Form Container (same styles as .landing-box) */
-/* .container for signup is essentially the same as .landing-box, adjusting max-width to 450px */
-.container.signup-form {
-    max-width: 450px;
-    animation: slideUp 0.5s ease-out;
-    padding: 40px;
+/* Center containers for auth pages */
+body.auth-page {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
 }
 
-/* --- Keyframe Animations --- */
+/* ======================================
+   ANIMATIONS
+   ====================================== */
 @keyframes slideUp {
     from {
         opacity: 0;
@@ -108,60 +106,9 @@ body {
     50% { transform: scale(1.1); }
 }
 
-.error-icon {
-    font-size: 4em;
-    margin-bottom: 20px;
-    animation: pulse 2s infinite;
-}
-
-/* --- Header and Title Styles --- */
-h1 {
-    color: #333;
-    margin-bottom: 15px;
-    font-size: 2em;
-    font-weight: 700;
-}
-
-h2 {
-    color: #333;
-    font-size: 2em;
-    margin-bottom: 30px;
-    text-align: center;
-    padding-bottom: 15px;
-    border-bottom: 3px solid #667eea;
-}
-
-/* Specific h2 overrides */
-.edit-container h2 {
-    color: #333;
-}
-.error-container h2 {
-    color: #dc2626;
-    border-bottom: none;
-}
-.container.signup-form h2 {
-    padding-bottom: initial;
-    border-bottom: initial;
-    margin-bottom: 10px;
-}
-
-
-h4 {
-    color: #666;
-    font-size: 1.2em;
-    margin-bottom: 30px;
-    font-weight: 400;
-}
-
-.subtitle {
-    text-align: center;
-    color: #666;
-    margin-bottom: 30px;
-    font-size: 0.95em;
-    line-height: 1.5;
-}
-
-/* Dashboard-specific header */
+/* ======================================
+   HEADER STYLES
+   ====================================== */
 .header {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
@@ -172,8 +119,6 @@ h4 {
 .header h2 {
     font-size: 2em;
     margin-bottom: 10px;
-    padding-bottom: initial;
-    border-bottom: initial;
 }
 
 .header h3 {
@@ -182,6 +127,9 @@ h4 {
     opacity: 0.9;
 }
 
+/* ======================================
+   CONTENT AREA
+   ====================================== */
 .content {
     padding: 40px;
 }
@@ -199,6 +147,46 @@ h4 {
     display: inline-block;
 }
 
+/* ======================================
+   TYPOGRAPHY
+   ====================================== */
+h1 {
+    color: #333;
+    margin-bottom: 15px;
+    font-size: 2em;
+    font-weight: 700;
+}
+
+h2 {
+    color: #333;
+    font-size: 2em;
+    margin-bottom: 30px;
+    text-align: center;
+}
+
+.edit-container h2 {
+    padding-bottom: 15px;
+    border-bottom: 3px solid #667eea;
+}
+
+h4 {
+    color: #666;
+    font-size: 1.2em;
+    margin-bottom: 30px;
+    font-weight: 400;
+}
+
+.subtitle {
+    color: #666;
+    margin-bottom: 30px;
+    font-size: 0.95em;
+    line-height: 1.5;
+    text-align: center;
+}
+
+/* ======================================
+   FORM STYLES
+   ====================================== */
 .form-container {
     background: #f8f9fa;
     padding: 30px;
@@ -206,9 +194,12 @@ h4 {
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
 }
 
-/* --- Form Elements --- */
 .form-group {
-    margin-bottom: 25px; /* Using largest margin for consistency */
+    margin-bottom: 20px;
+}
+
+.edit-container .form-group {
+    margin-bottom: 25px;
 }
 
 label {
@@ -220,29 +211,51 @@ label {
 }
 
 input[type="text"],
-input[type="date"],
 input[type="email"],
 input[type="password"],
+input[type="date"],
 textarea,
 select {
     width: 100%;
-    padding: 12px 15px; /* Using 12px vertical padding as base */
+    padding: 12px 15px;
     border: 2px solid #e0e0e0;
-    border-radius: 10px; /* Using 10px as base */
+    border-radius: 8px;
     font-size: 1em;
     transition: all 0.3s ease;
     font-family: inherit;
 }
 
+.landing-box input[type="text"],
+.landing-box input[type="password"],
+.edit-container input[type="text"],
+.edit-container input[type="date"],
+.edit-container textarea,
+.edit-container select {
+    border-radius: 10px;
+    padding: 14px 16px;
+}
+
+.landing-box input[type="text"],
+.landing-box input[type="password"] {
+    margin-bottom: 15px;
+}
+
 input[type="text"]:focus,
-input[type="date"]:focus,
 input[type="email"]:focus,
 input[type="password"]:focus,
+input[type="date"]:focus,
 textarea:focus,
 select:focus {
     outline: none;
     border-color: #667eea;
-    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1); /* Using 4px shadow as base */
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.landing-box input:focus,
+.edit-container input:focus,
+.edit-container textarea:focus,
+.edit-container select:focus {
+    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
 }
 
 input[type="text"]::placeholder,
@@ -253,66 +266,23 @@ input[type="password"]::placeholder {
 
 textarea {
     resize: vertical;
-    min-height: 120px; /* Using largest min-height */
+    min-height: 100px;
 }
 
-select option {
-    padding: 10px;
+.edit-container textarea {
+    min-height: 120px;
 }
 
-.input-icon {
-    position: relative;
-}
-
-.input-icon input {
-    padding-left: 45px;
-}
-
-.input-icon::before {
-    content: '';
-    position: absolute;
-    left: 15px;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 20px;
-    height: 20px;
-    background-size: contain;
-    opacity: 0.5;
-    /* Add specific icon styles here if needed, e.g., for username, email */
-    /* .input-icon.user::before { background-image: url('user.svg'); } */
-}
-
-/* Password Strength Indicator */
-.password-strength {
-    margin-top: 8px;
-    font-size: 0.85em;
-    color: #666;
-}
-
-.strength-bar {
-    height: 4px;
-    background: #e0e0e0;
-    border-radius: 2px;
-    margin-top: 5px;
-    overflow: hidden;
-}
-
-.strength-bar-fill {
-    height: 100%;
-    width: 0%;
-    transition: all 0.3s ease;
-    border-radius: 2px;
-}
-
-
-/* --- Buttons --- */
+/* ======================================
+   BUTTON STYLES
+   ====================================== */
 button {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
-    padding: 14px 30px; /* Using larger padding for standard buttons */
+    padding: 12px 30px;
     border: none;
-    border-radius: 10px; /* Using 10px for standard buttons */
-    font-size: 1.1em; /* Using larger font for standard buttons */
+    border-radius: 8px;
+    font-size: 1em;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
@@ -328,25 +298,11 @@ button:active {
     transform: translateY(0);
 }
 
-/* Grouping for edit/save buttons */
-.button-group {
-    display: flex;
-    gap: 15px;
-    margin-top: 30px;
-}
-
-.button-group button {
-    flex: 1;
-}
-
-/* Specific button styles */
-.logout-btn {
-    background: #ef4444;
-    box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
-}
-
-.logout-btn:hover {
-    box-shadow: 0 6px 20px rgba(239, 68, 68, 0.6);
+.signup-btn,
+.login-btn {
+    padding: 14px;
+    border-radius: 10px;
+    font-size: 1.1em;
 }
 
 .option-button {
@@ -364,36 +320,52 @@ button:active {
     text-align: center;
 }
 
-.login-btn {
+.option-button.login-btn {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
     box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
 }
 
-.signup-btn {
+.option-button.login-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+}
+
+.option-button.signup-btn {
     background: white;
     color: #667eea;
     border: 2px solid #667eea;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
 }
 
-.signup-btn:hover {
+.option-button.signup-btn:hover {
     background: #667eea;
     color: white;
     transform: translateY(-2px);
     box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
 }
 
-/* Used for signup form submit button */
-button.signup-btn {
-    width: 100%;
-    border: none;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    margin-top: 10px;
+.logout-btn {
+    background: #ef4444;
+    box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
 }
 
-/* --- Links and Utility Elements --- */
+.logout-btn:hover {
+    box-shadow: 0 6px 20px rgba(239, 68, 68, 0.6);
+}
+
+.button-group {
+    display: flex;
+    gap: 15px;
+    margin-top: 30px;
+}
+
+.button-group button {
+    flex: 1;
+    padding: 14px 30px;
+    font-size: 1.1em;
+}
+
 .cancel-link {
     flex: 1;
     display: flex;
@@ -422,138 +394,9 @@ button.signup-btn {
     transform: translateY(0);
 }
 
-.login-link {
-    text-align: center;
-    margin-top: 25px;
-    color: #666;
-    font-size: 0.95em;
-}
-
-.login-link a {
-    color: #667eea;
-    text-decoration: none;
-    font-weight: 600;
-    transition: color 0.3s ease;
-}
-
-.login-link a:hover {
-    color: #764ba2;
-    text-decoration: underline;
-}
-
-.divider, .form-divider {
-    text-align: center;
-    margin: 25px 0;
-    position: relative;
-}
-
-.divider::before, .form-divider::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 50%;
-    width: 100%;
-    height: 1px;
-    background: #e0e0e0;
-}
-
-.divider span, .form-divider span {
-    background: white;
-    padding: 0 15px;
-    position: relative;
-    color: #999;
-    font-size: 0.9em;
-}
-
-/* --- Messaging & Badges --- */
-
-/* Success Message (used on landing/login) */
-.message {
-    background: #d1fae5;
-    color: #065f46;
-    padding: 12px 16px;
-    border-radius: 8px;
-    margin-bottom: 20px;
-    border-left: 4px solid #10b981;
-    font-weight: 600;
-    font-size: 0.9em;
-}
-
-/* Error/Alert Messages (used on landing/login/error/signup) */
-.message-error, .error, .error-message {
-    background: #fee2e2;
-    color: #991b1b;
-    padding: 15px 20px; /* Using larger padding for error messages */
-    border-radius: 10px;
-    margin-bottom: 20px;
-    border-left: 4px solid #dc2626;
-    font-size: 0.95em;
-    line-height: 1.6;
-}
-.error {
-    text-align: center;
-    font-size: 0.9em;
-}
-
-/* Priority Indicators (small circle next to label in edit form) */
-.priority-indicator {
-    display: inline-block;
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    margin-right: 8px;
-}
-
-/* Priority Badges (in table/list view) */
-.priority-badge {
-    display: inline-block;
-    padding: 4px 10px;
-    border-radius: 15px;
-    font-size: 0.85em;
-    font-weight: 600;
-    text-transform: uppercase;
-}
-
-.priority-low, .priority-indicator.priority-low {
-    background: #dbeafe;
-    color: #2563eb;
-}
-
-.priority-medium, .priority-indicator.priority-medium {
-    background: #fef3c7;
-    color: #d97706;
-}
-
-.priority-high, .priority-indicator.priority-high {
-    background: #fee2e2;
-    color: #dc2626;
-}
-
-/* Status Badges (in table view) */
-.status-badge {
-    display: inline-block;
-    padding: 5px 12px;
-    border-radius: 20px;
-    font-size: 0.85em;
-    font-weight: 600;
-}
-
-.status-done {
-    background: #d1fae5;
-    color: #065f46;
-}
-
-.status-pending {
-    background: #fef3c7;
-    color: #92400e;
-}
-
-.status-deleted {
-    background: #fee2e2;
-    color: #991b1b;
-}
-
-/* --- Task List/Table Styles --- */
+/* ======================================
+   TASK LIST STYLES
+   ====================================== */
 .task-list {
     list-style: none;
 }
@@ -619,6 +462,21 @@ button.signup-btn {
     margin-left: 10px;
 }
 
+.priority-high {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+.priority-medium {
+    background: #fef3c7;
+    color: #d97706;
+}
+
+.priority-low {
+    background: #dbeafe;
+    color: #2563eb;
+}
+
 .task-date {
     color: #666;
     font-size: 0.9em;
@@ -646,7 +504,9 @@ button.signup-btn {
     text-decoration: underline;
 }
 
-/* Task Table */
+/* ======================================
+   TABLE STYLES (ADMIN)
+   ====================================== */
 .table-container {
     overflow-x: auto;
     background: white;
@@ -685,6 +545,38 @@ tr:last-child td {
     border-bottom: none;
 }
 
+.status-badge {
+    display: inline-block;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.85em;
+    font-weight: 600;
+}
+
+.status-done {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.status-pending {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.status-deleted {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.priority-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 15px;
+    font-size: 0.85em;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
 .action-links a {
     color: #667eea;
     text-decoration: none;
@@ -699,7 +591,52 @@ tr:last-child td {
     text-decoration: underline;
 }
 
-/* --- Empty States & Miscellaneous --- */
+.task-id {
+    font-weight: 600;
+    color: #666;
+}
+
+.user-name {
+    font-weight: 600;
+    color: #667eea;
+}
+
+/* ======================================
+   MESSAGE & ERROR STYLES
+   ====================================== */
+.message {
+    background: #d1fae5;
+    color: #065f46;
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    border-left: 4px solid #10b981;
+    font-weight: 600;
+    font-size: 0.9em;
+}
+
+.message-error,
+.error-message {
+    background: #fee2e2;
+    color: #991b1b;
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    border-left: 4px solid #dc2626;
+    font-weight: 600;
+    font-size: 0.9em;
+}
+
+.error-container .error-message {
+    padding: 15px 20px;
+    border-radius: 10px;
+    margin-bottom: 30px;
+    line-height: 1.6;
+}
+
+/* ======================================
+   EMPTY STATE
+   ====================================== */
 .empty-state {
     text-align: center;
     padding: 40px;
@@ -713,30 +650,78 @@ tr:last-child td {
     margin-bottom: 10px;
 }
 
+/* ======================================
+   DIVIDER
+   ====================================== */
 .divider {
     height: 2px;
     background: linear-gradient(to right, transparent, #e0e0e0, transparent);
     margin: 40px 0;
 }
 
+.form-divider {
+    text-align: center;
+    margin: 25px 0;
+    position: relative;
+}
+
+.form-divider::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    width: 100%;
+    height: 1px;
+    background: #e0e0e0;
+}
+
+.form-divider span {
+    background: white;
+    padding: 0 15px;
+    position: relative;
+    color: #999;
+    font-size: 0.9em;
+}
+
+/* ======================================
+   LOGOUT CONTAINER
+   ====================================== */
 .logout-container {
     text-align: center;
     padding: 20px 0;
 }
 
-.task-id {
-    font-weight: 600;
-    color: #666;
-}
-
-.user-name {
-    font-weight: 600;
-    color: #667eea;
-}
-
-.welcome-icon {
+/* ======================================
+   ICONS & SPECIAL ELEMENTS
+   ====================================== */
+.welcome-icon,
+.error-icon {
     font-size: 3em;
     margin-bottom: 20px;
+}
+
+.error-icon {
+    font-size: 4em;
+    animation: pulse 2s infinite;
+}
+
+.login-link {
+    text-align: center;
+    margin-top: 25px;
+    color: #666;
+    font-size: 0.95em;
+}
+
+.login-link a {
+    color: #667eea;
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.3s ease;
+}
+
+.login-link a:hover {
+    color: #764ba2;
+    text-decoration: underline;
 }
 
 .helper-text {
@@ -750,9 +735,14 @@ tr:last-child td {
     color: #333;
 }
 
-
-/* --- Media Queries --- */
+/* ======================================
+   RESPONSIVE DESIGN
+   ====================================== */
 @media (max-width: 768px) {
+    body {
+        padding: 10px;
+    }
+
     .content {
         padding: 20px;
     }
@@ -769,6 +759,11 @@ tr:last-child td {
         padding: 20px;
     }
 
+    .task-actions a {
+        display: inline-block;
+        margin-bottom: 5px;
+    }
+
     table {
         font-size: 0.9em;
     }
@@ -777,28 +772,44 @@ tr:last-child td {
         padding: 10px;
     }
 
-    .action-links a,
-    .task-actions a {
-        display: inline-block;
-        margin-right: 10px;
+    .action-links a {
+        display: block;
         margin-bottom: 5px;
     }
 }
 
 @media (max-width: 480px) {
-    .edit-container,
     .landing-box,
-    .error-container,
-    .container.signup-form {
+    .edit-container,
+    .error-container {
+        padding: 40px 30px;
+    }
+
+    .edit-container {
         padding: 30px 25px;
     }
 
-    h1, h2 {
+    h1,
+    h2 {
+        font-size: 1.75em;
+    }
+
+    .edit-container h2 {
         font-size: 1.75em;
     }
 
     h4 {
         font-size: 1em;
+    }
+
+    .option-button,
+    button {
+        font-size: 1em;
+        padding: 12px;
+    }
+
+    .welcome-icon {
+        font-size: 2.5em;
     }
 
     .error-icon {
@@ -809,11 +820,8 @@ tr:last-child td {
         flex-direction: column;
     }
 
-    button,
-    .cancel-link,
-    .option-button {
+    .button-group button,
+    .cancel-link {
         width: 100%;
-        font-size: 1em;
-        padding: 12px;
     }
 }

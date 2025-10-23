@@ -10,7 +10,7 @@
     <cfparam name="DSN_NAME" default="todolist">
     <cfparam name="session.user" default="">
     
-    <div class="container">
+    <div class="admin-container">
         <cfoutput>
         <div class="header">
             <h2>Hello, #ucase(session.user.username)#!</h2>

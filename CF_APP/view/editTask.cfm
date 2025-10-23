@@ -6,7 +6,7 @@
     <title>Edit Task - Task Manager</title>
     <link rel="stylesheet" href="view/index.css">
 </head>
-<body>
+<body class="auth-page">
     <div class="edit-container">
         <h2>✏️ Edit Task</h2>
 

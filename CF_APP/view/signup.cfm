@@ -6,8 +6,8 @@
     <title>Create Your Account - Task Manager</title>
     <link rel="stylesheet" href="view/index.css">
 </head>
-<body>
-    <div class="container">
+<body class="auth-page">
+    <div class="landing-box">
         <h2>Create Your Account</h2>
         <p class="subtitle">Join us and start managing your tasks efficiently</p>
         

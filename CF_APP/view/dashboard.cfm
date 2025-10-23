@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Task Manager Dashboard</title>
-    <link rel="stylesheet" href="view/user_dashboard.css">
+    <link rel="stylesheet" href="view/index.css">
 </head>
 <body>
     <div class="container">

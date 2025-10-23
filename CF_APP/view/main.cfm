@@ -6,7 +6,7 @@
     <title>Welcome - Task Manager</title>
     <link rel="stylesheet" href="view/index.css">
 </head>
-<body>
+<body class="auth-page">
     <div class="landing-box">
         <div class="welcome-icon">📋</div>
         <h1>Welcome to Task Manager</h1>

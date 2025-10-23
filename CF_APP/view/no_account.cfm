@@ -6,7 +6,7 @@
     <title>Login Failed - Task Manager</title>
     <link rel="stylesheet" href="view/index.css">
 </head>
-<body>
+<body class="auth-page">
     <div class="error-container">
         <div class="error-icon">🔒</div>
         
