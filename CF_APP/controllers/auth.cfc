@@ -8,7 +8,7 @@ component displayname="AuthController" {
     }
 
     public void function showLoginForm() {
-        include "/views/main.cfm";
+        include "/view/main.cfm";
     }
 
     public void function showSignupForm() {
@@ -74,8 +74,12 @@ component displayname="AuthController" {
             sessionRotate();
             session.user = result.user;
             session.user_id = result.user.id;
-
-            location(url="index.cfm?action=dashboard");
+            session.user_role = result.user.user_role;
+            if (session.user_role eq "admin") {
+            location(url="index.cfm?action=adminDashboard");
+        } else {
+            location(url="index.cfm?action=dashboard"); 
+        }
 
         } else {
             location(url="index.cfm?action=no_account");
@@ -106,40 +110,27 @@ component displayname="AuthController" {
     }
 
     public void function dashboard() {
-       
-        if (!session.keyExists("user")) {
-            location(url="index.cfm?action=auth.showLoginForm");
-        }
-        include "/views/user/dashboard.cfm";
+
+    if (!structKeyExists(session, "user") OR !structKeyExists(session, "user_role")) {
+        location(url="index.cfm?action=auth.showLoginForm");
+        return;
     }
 
+    switch (session["user_role"]) {
+        case "admin":
+            location(url="index.cfm?action=adminDashboard");
+            break;
+        case "user":
+            include "/view/dashboard.cfm";
+            break;
+        default:
+            location(url="index.cfm?action=auth.showLoginForm");
+    }
+}
 
-    // public void function createTask(
-    //     required string taskName,
-    //     string description = '',
-    //     string priority = 'medium',
-    //     date dueDate
-    // ) {
-    //     var taskModel = new models.TaskModel();
 
-    //     // The 'arguments' scope is automatically available in script-based functions
-    //     arguments.userId = session.user_id;
 
-    //     taskModel.createTask(argumentCollection = arguments);
-
-    //     location(url="index.cfm?action=dashboard", addtoken="false");
-    // }
-    
-    // public void function deleteTask(required numeric taskId) {
-    //     var taskModel = new models.TaskModel();
-
-    //     taskModel.deleteTask(arguments.taskId);
-
-    //     location(url="index.cfm?action=dashboard", addtoken="false");
-    // }
-    
-    // </cfcomponent>
-
+   
 
 }
 </cfscript>
