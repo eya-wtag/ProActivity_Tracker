@@ -32,18 +32,54 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="priority">Priority:</label>
-                            <select id="priority" name="priority">
-                                <option value="low">Low</option>
-                                <option value="medium" selected>Medium</option>
-                                <option value="high">High</option>
-                            </select>
-                        </div>
+                                <label for="priority">Priority:</label>
+                                <select id="priority" name="priority">
+                                    <option value="low">Low</option>
+                                    <option value="medium" selected>Medium</option>
+                                    <option value="high">High</option>
+                                </select>
+                            </div>
 
-                        <div class="form-group">
-                            <label for="dueDate">Due Date:</label>
-                            <input type="date" id="dueDate" name="dueDate" value="<cfoutput>#dateFormat(now(), 'yyyy-mm-dd')#</cfoutput>">
-                        </div>
+                            <div class="form-group">
+                                <label for="dueDate">Due Date:</label>
+                                <input 
+                                    type="date" 
+                                    id="dueDate" 
+                                    name="dueDate" 
+                                    value="<cfoutput>#dateFormat(now(), 'yyyy-mm-dd')#</cfoutput>"
+                                    readonly
+                                >
+                            </div>
+
+                            <script>
+                            document.addEventListener("DOMContentLoaded", function() {
+                                const prioritySelect = document.getElementById("priority");
+                                const dueDateInput = document.getElementById("dueDate");
+
+                                function updateDueDate() {
+                                    let daysToAdd = 0;
+                                    switch(prioritySelect.value) {
+                                        case "low": daysToAdd = 1; break;
+                                        case "medium": daysToAdd = 2; break;
+                                        case "high": daysToAdd = 5; break;
+                                    }
+
+                                    const today = new Date();
+                                    today.setDate(today.getDate() + daysToAdd);
+
+                                    const year = today.getFullYear();
+                                    const month = ("0" + (today.getMonth() + 1)).slice(-2);
+                                    const day = ("0" + today.getDate()).slice(-2);
+
+                                    dueDateInput.value = `${year}-${month}-${day}`;
+                                }
+
+                                // Run on page load and when priority changes
+                                updateDueDate();
+                                prioritySelect.addEventListener("change", updateDueDate);
+                            });
+                            </script>
+
 
                         <button type="submit">Add Task</button>
                     </form>
