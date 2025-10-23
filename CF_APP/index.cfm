@@ -155,67 +155,35 @@ switch (url.action) {
         include "view/no_account.cfm";
         break;
     
-    case "assignTask":
-    var DSN_NAME = "todolist";
 
+case "assignTaskByAdmin":
 
-    if (ucase(cgi.request_method) eq "POST" && structKeyExists(form, "taskName") && structKeyExists(form, "userId")) {
+    if (ucase(cgi.request_method) eq "POST" && structKeyExists(form, "taskName")) {
 
         if (structKeyExists(session, "user") && session.user.user_role eq "admin") {
 
+            // Set defaults for optional fields, ensuring they exist for the model call
             cfparam(name="form.description", default="", type="string");
             cfparam(name="form.priority", default="medium", type="string");
             cfparam(name="form.dueDate", default="", type="string");
+            cfparam(name="form.userId", default="", type="string"); // Ensure userId exists
 
             try {
-           
-                var taskModel = new model.query(dsnName=DSN_NAME);
+                // Get userId safely (Handle array case defensively, though less necessary now)
+                var rawUserId = structKeyExists(form, "userId") ? form.userId : "";
+                if (isArray(rawUserId)) rawUserId = rawUserId[1];
 
-                var finalDueDate = (len(trim(form.dueDate)) gt 0) ? form.dueDate : "";
 
-                taskModel.createTaskForUser(
-                    userId = form.userId,
+                // Create task (Model handles ALL data processing and status logic)
+                var taskModel = new model.query(dsnName="todolist");
+                
+                // Pass the raw form values directly to the model
+                var result = taskModel.createTaskForUser(
+                    userId = rawUserId, // <--- PASSING RAW VALUE
                     taskName = form.taskName,
                     description = form.description,
                     priority = form.priority,
-                    dueDate = finalDueDate
-                );
-
-            } catch (any e) {
-                writeOutput("<p style='color:red;'>Error assigning task: #e.message#</p>");
-            }
-            location(url="index.cfm?action=dashboard", addtoken=false);
-
-        } else {
-            location(url="index.cfm?action=login", addtoken=false);
-        }
-    } else {
-        location(url="index.cfm?action=dashboard", addtoken=false);
-    }
-
-    break;
-    case "assignTaskByAdmin":
-    if (ucase(cgi.request_method) eq "POST" && structKeyExists(form, "taskName") && structKeyExists(form, "userId")) {
-
-        if (structKeyExists(session, "user") && session.user.user_role eq "admin") {
-
-       
-            cfparam(name="form.description", default="", type="string");
-            cfparam(name="form.priority", default="medium", type="string");
-            cfparam(name="form.dueDate", default="", type="string");
-
-            try {
-                var taskModel = new model.query(dsnName="todolist");
-                var finalDueDate = (len(trim(form.dueDate)) gt 0) 
-                   ? form.dueDate 
-                   : dateFormat(now(), "yyyy-mm-dd");
-
-                var result = taskModel.createTaskForUser(
-                    userId=form.userId,
-                    taskName=form.taskName,
-                    description=form.description,
-                    priority=form.priority,
-                    dueDate=finalDueDate
+                    dueDate = form.dueDate // Model handles null/date formatting
                 );
 
                 if (result.success) {
@@ -225,6 +193,7 @@ switch (url.action) {
                 }
 
             } catch(any e) {
+                // Note: The model should handle most errors, this catches instantiation/call errors
                 writeOutput("<p style='color:red;'>Exception: #e.message#</p>");
             }
 
@@ -235,8 +204,8 @@ switch (url.action) {
     } else {
         location(url="index.cfm?action=adminDashboard", addtoken=false);
     }
-break;
 
+break;
 
     default:
         writeOutput("Page not found.");

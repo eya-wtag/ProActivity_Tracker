@@ -1,7 +1,6 @@
 component {
 
-    property name="dsn" 
-    type="string"; 
+    property name="dsn" type="string"; 
 
     public function init(required string dsnName) {
         this.dsn = arguments.dsnName;
@@ -14,14 +13,8 @@ component {
 
         try {
             var params = {
-                userId: {
-                    value: arguments.userId, 
-                    cfsqltype: "cf_sql_integer"
-                },
-                statusFilter: {
-                    value: arguments.statusFilter, 
-                    cfsqltype: "cf_sql_varchar"
-                }
+                userId: {value: arguments.userId, cfsqltype: "cf_sql_integer"},
+                statusFilter: {value: arguments.statusFilter, cfsqltype: "cf_sql_varchar"}
             };
             
             tasksQuery = queryExecute(
@@ -64,12 +57,7 @@ component {
         try {
             queryExecute(
                 "INSERT INTO tasks (user_id, taskName, description, priority, due_date, status)
-                VALUES (
-                    :userId, 
-                    :taskName, 
-                    :description, 
-                    :priority, 
-                    :dueDate,)", 
+                VALUES (:userId, :taskName, :description, :priority, :dueDate, 'pending')", 
                 {
                     userId:      {value: arguments.userId,      cfsqltype: "cf_sql_integer"},
                     taskName:    {value: arguments.taskName,    cfsqltype: "cf_sql_varchar"},
@@ -281,92 +269,6 @@ component {
         );
     }
 }
-public struct function createTaskByAdmin(
-    required numeric userId,
-    required string taskName,
-    string description = "",
-    string priority = "medium",
-    string dueDate = ""
-) {
-    var response = {success=false};
-
-    try {
-        // If dueDate is empty, pass CFML null
-        var dbDueDate = (len(trim(dueDate)) eq 0) ? null : dateFormat(dueDate, "yyyy-mm-dd");
-
-        queryExecute(
-            "INSERT INTO tasks (
-                user_id, taskName, 
-                description, 
-                priority, 
-                due_date, 
-                status, 
-                created_at)
-             VALUES (:userId, :taskName, :description, :priority, :dueDate, 0, NOW())",
-            {
-                userId: { value=userId, cfsqltype="cf_sql_integer" },
-                taskName: { value=taskName, cfsqltype="cf_sql_varchar" },
-                description: { value=description, cfsqltype="cf_sql_varchar" },
-                priority: { value=priority, cfsqltype="cf_sql_varchar" },
-                dueDate: { value=dbDueDate, cfsqltype="cf_sql_date" }  <!--- null if no date --->
-            },
-            { datasource=this.dsn }
-        );
-
-        response.success = true;
-    } catch (any e) {
-        response.success = false;
-        response.error = e.message;
-    }
-    
-    return response;
-}
-
-
-    property name="dsn" type="string";
-
-    // Initialize component with DSN
-    public any function init(required string dsnName) {
-        this.dsn = dsnName;
-        return this;
-    }
-
-    // Create a task for a specific user
-    public struct function createTaskForUser(
-        required numeric userId,
-        required string taskName,
-        string description = "",
-        string priority = "medium",
-        string dueDate = ""
-    ) {
-        var response = {success=false};
-        try {
-            var sql = "
-                INSERT INTO tasks
-                (user_id, taskName, description, priority, due_date, status, created_at)
-                VALUES
-                (:userId, :taskName, :description, :priority, :dueDate, 'pending', NOW())
-            ";
-
-            var params = {
-                userId: { value=arguments.userId, cfsqltype="cf_sql_integer" },
-                taskName: { value=arguments.taskName, cfsqltype="cf_sql_varchar" },
-                description: { value=arguments.description, cfsqltype="cf_sql_varchar" },
-                priority: { value=arguments.priority, cfsqltype="cf_sql_varchar" },
-                dueDate: { value=(len(arguments.dueDate) ? arguments.dueDate : null), cfsqltype="cf_sql_date" }
-            };
-
-            queryExecute(sql, params, {datasource=this.dsn});
-            response.success = true;
-
-        } catch(any e) {
-            response.success = false;
-            response.error = e.message;
-        }
-
-        return response;
-    }
-
     // Get all users
     public query function getAllUsers() {
         return queryExecute(
@@ -389,33 +291,59 @@ public struct function createTaskByAdmin(
             {datasource=this.dsn}
         );
     }
-    
-
+   /**
+ * Creates a new task and optionally assigns it to a user.
+ * NOTE: The userId argument is now a string to handle a potentially empty/null value from the form.
+ * The model handles conversion to numeric or SQL NULL.
+ */
 public struct function createTaskForUser(
-        required numeric userId,
         required string taskName,
+        string userId = "", // <--- CHANGED: Now optional string with a default value
         string description = "",
         string priority = "medium",
         string dueDate = ""
     ) {
         var response = {success=false};
+        var dbUserId = ""; // Variable to hold the final ID for the query
+        var taskStatus = "open";
+
+        // --- 1. Process User ID and determine status ---
+        var rawId = arguments.userId;
+        
+        // Handle array issue, though better handled in controller, we keep defensive coding
+        if (isArray(rawId)) { rawId = rawId[1]; }
+        
+        if (isNumeric(rawId) && len(trim(rawId)) > 0) {
+            // If we have a valid number, use it and set status to pending
+            dbUserId = val(rawId);
+            taskStatus = "pending"; 
+        } else {
+            // No valid User ID provided, set the DSN-aware null value
+            dbUserId = javacast("null", ""); 
+        }
+
+        // --- 2. Build and Execute Query ---
         try {
             var sql = "
                 INSERT INTO tasks
                 (user_id, taskName, description, priority, due_date, status, created_at)
                 VALUES
-                (:userId, :taskName, :description, :priority, :dueDate, 'pending', NOW())
+                (:userId, :taskName, :description, :priority, :dueDate, :status, NOW())
             ";
 
             var params = {
-                userId: { value=arguments.userId, cfsqltype="cf_sql_integer" },
-                taskName: { value=arguments.taskName, cfsqltype="cf_sql_varchar" },
+                // Pass the processed dbUserId (numeric or Java Null)
+                userId:      { value=dbUserId, cfsqltype="cf_sql_integer" }, 
+                taskName:    { value=arguments.taskName, cfsqltype="cf_sql_varchar" },
                 description: { value=arguments.description, cfsqltype="cf_sql_varchar" },
-                priority: { value=arguments.priority, cfsqltype="cf_sql_varchar" },
-                dueDate: { value=(len(arguments.dueDate) ? arguments.dueDate : null), cfsqltype="cf_sql_date" }
+                priority:    { value=arguments.priority, cfsqltype="cf_sql_varchar" },
+                status:      { value=taskStatus, cfsqltype="cf_sql_varchar" }, // <--- Added status
+                // If dueDate is an empty string, pass NULL to the database
+                dueDate:     { value=(len(arguments.dueDate) ? arguments.dueDate : javacast("null", "")), cfsqltype="cf_sql_date" }
             };
 
-            queryExecute(sql, params, {datasource=this.dsn});
+            // Assuming 'this.dsn' is defined in the CFC's init method
+            queryExecute(sql, params, {datasource=this.dsn}); 
             response.success = true;
 
         } catch(any e) {
@@ -424,6 +352,6 @@ public struct function createTaskForUser(
         }
 
         return response;
-    }
+    } 
 
 }
