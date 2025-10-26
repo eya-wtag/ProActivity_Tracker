@@ -143,7 +143,12 @@
                                     <cfloop query="allTasks">
                                         <tr>
                                             <td class="task-id">#allTasks.id#</td>
-                                            <td class="user-name">#allTasks.username#</td>
+                                            <td class="user-name">
+                                                <cfoutput>
+                                                    #len(trim(allTasks.username)) ? allTasks.username : '<span style="color: ##999; font-style: italic;">Not Assigned</span>'#
+                                                </cfoutput>
+
+                                            </td>
                                             <td>#allTasks.taskName#</td>
                                             <td>
                                                 <span class="priority-badge priority-#lcase(allTasks.priority)#">
@@ -162,8 +167,12 @@
                                                     <span class="status-badge status-done">✅ Done</span>
                                                 <cfelseif allTasks.status eq "pending">
                                                     <span class="status-badge status-pending">🕒 Pending</span>
-                                                <cfelse>
+                                                 <cfelseif allTasks.status eq "open">
+                                                    <span class="status-badge status-open">📋 Open</span>
+                                                <cfelseif allTasks.status eq "delete">
                                                     <span class="status-badge status-deleted">❌ Deleted</span>
+                                                <cfelse>
+                                                    <span class="status-badge status-deleted">Unknown</span>
                                                 </cfif>
                                             </td>
                                             <td class="action-links">

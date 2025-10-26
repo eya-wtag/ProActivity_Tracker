@@ -85,7 +85,52 @@
                     </form>
                 </div>
             </div>
+<div class="divider"></div>
 
+<div class="section">
+    <h3 class="section-title">Available Open Tasks</h3>
+
+    <cfif structKeyExists(session, "user_id")>
+        <cfscript>
+            var DSN_NAME = "todolist"; 
+            var taskModel = new model.query(dsnName=DSN_NAME);
+            var openTasks = taskModel.getOpenTasks();
+        </cfscript>
+
+        <cfif openTasks.recordCount GT 0>
+            <cfoutput>
+                <ul class="task-list">
+                <cfloop query="openTasks">
+                    <div class="task-item open-task">
+                        <li>
+                            <strong>#openTasks.taskName#</strong>
+                            <span class="task-priority priority-#lcase(openTasks.priority)#">#ucase(openTasks.priority)#</span>
+                            <span class="task-date">Due: #DateFormat(openTasks.due_date, "mm/dd/yyyy")#</span>
+                            
+                            <cfif len(openTasks.description)>
+                                <p style="color: ##666; margin-top: 10px; font-size: 0.95em;">#openTasks.description#</p>
+                            </cfif>
+                            
+                            <div style="margin-top: 15px;">
+                                <a href="index.cfm?action=claimTask&amp;taskId=#openTasks.id#" 
+                                   class="claim-btn"
+                                   onclick="return confirm('Do you want to claim this task?');">
+                                    ✋ Claim This Task
+                                </a>
+                            </div>
+                        </li>
+                    </div>
+                </cfloop>
+                </ul>
+            </cfoutput>
+        <cfelse>
+            <div class="empty-state">
+                <span>📭</span>
+                <p>No open tasks available at the moment.</p>
+            </div>
+        </cfif>
+    </cfif>
+</div>
             <div class="divider"></div>
 
             <!-- Pending Tasks -->

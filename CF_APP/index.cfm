@@ -156,58 +156,74 @@ switch (url.action) {
         break;
     
 
-case "assignTaskByAdmin":
+    case "assignTaskByAdmin":
 
-    if (ucase(cgi.request_method) eq "POST" && structKeyExists(form, "taskName")) {
+        if (ucase(cgi.request_method) eq "POST" && structKeyExists(form, "taskName")) {
 
-        if (structKeyExists(session, "user") && session.user.user_role eq "admin") {
+            if (structKeyExists(session, "user") && session.user.user_role eq "admin") {
 
-            // Set defaults for optional fields, ensuring they exist for the model call
-            cfparam(name="form.description", default="", type="string");
-            cfparam(name="form.priority", default="medium", type="string");
-            cfparam(name="form.dueDate", default="", type="string");
-            cfparam(name="form.userId", default="", type="string"); // Ensure userId exists
+                // Set defaults for optional fields, ensuring they exist for the model call
+                cfparam(name="form.description", default="", type="string");
+                cfparam(name="form.priority", default="medium", type="string");
+                cfparam(name="form.dueDate", default="", type="string");
+                cfparam(name="form.userId", default="", type="string"); // Ensure userId exists
 
-            try {
-                // Get userId safely (Handle array case defensively, though less necessary now)
-                var rawUserId = structKeyExists(form, "userId") ? form.userId : "";
-                if (isArray(rawUserId)) rawUserId = rawUserId[1];
+                try {
+                    // Get userId safely (Handle array case defensively, though less necessary now)
+                    var rawUserId = structKeyExists(form, "userId") ? form.userId : "";
+                    if (isArray(rawUserId)) rawUserId = rawUserId[1];
 
 
-                // Create task (Model handles ALL data processing and status logic)
-                var taskModel = new model.query(dsnName="todolist");
-                
-                // Pass the raw form values directly to the model
-                var result = taskModel.createTaskForUser(
-                    userId = rawUserId, // <--- PASSING RAW VALUE
-                    taskName = form.taskName,
-                    description = form.description,
-                    priority = form.priority,
-                    dueDate = form.dueDate // Model handles null/date formatting
-                );
+                    // Create task (Model handles ALL data processing and status logic)
+                    var taskModel = new model.query(dsnName="todolist");
+                    
+                    // Pass the raw form values directly to the model
+                    var result = taskModel.createTaskForUser(
+                        userId = rawUserId, // <--- PASSING RAW VALUE
+                        taskName = form.taskName,
+                        description = form.description,
+                        priority = form.priority,
+                        dueDate = form.dueDate // Model handles null/date formatting
+                    );
 
-                if (result.success) {
-                    location(url="index.cfm?action=adminDashboard", addtoken=false);
-                } else {
-                    writeOutput("<p style='color:red;'>Error: #result.error#</p>");
+                    if (result.success) {
+                        location(url="index.cfm?action=adminDashboard", addtoken=false);
+                    } else {
+                        writeOutput("<p style='color:red;'>Error: #result.error#</p>");
+                    }
+
+                } catch(any e) {
+                    // Note: The model should handle most errors, this catches instantiation/call errors
+                    writeOutput("<p style='color:red;'>Exception: #e.message#</p>");
                 }
 
-            } catch(any e) {
-                // Note: The model should handle most errors, this catches instantiation/call errors
-                writeOutput("<p style='color:red;'>Exception: #e.message#</p>");
+            } else {
+                location(url="index.cfm?action=login", addtoken=false);
             }
 
         } else {
-            location(url="index.cfm?action=login", addtoken=false);
+            location(url="index.cfm?action=adminDashboard", addtoken=false);
         }
 
+    break;
+    
+    case "claimTask":
+    if (structKeyExists(url, "taskId") AND structKeyExists(session, "user_id")) {
+        var taskModel = createObject("component", "model.query").init(dsnName="todolist");
+        var result = taskModel.claimOpenTask(url.taskId, session.user_id);
+        
+        if (result.success) {
+            location(url="index.cfm?action=dashboard&message=Task claimed successfully!", addtoken=false);
+        } else {
+            location(url="index.cfm?action=dashboard&error=" & result.error, addtoken=false);
+        }
     } else {
-        location(url="index.cfm?action=adminDashboard", addtoken=false);
+        location(url="index.cfm?action=dashboard", addtoken=false);
     }
-
-break;
+    break;
 
     default:
         writeOutput("Page not found.");
+
 }
 </cfscript>

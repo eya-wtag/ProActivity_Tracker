@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS tasks (
     priority ENUM('low', 'medium', 'high') DEFAULT 'medium',
     due_date DATE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    status ENUM('open','pending','done','delete') DEFAULT 'open';
+    status ENUM('open','pending','done','delete') DEFAULT 'open',
     CONSTRAINT fk_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 

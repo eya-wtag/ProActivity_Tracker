@@ -278,80 +278,165 @@ component {
         );
     }
 
-    // Get all tasks with username
-    public query function getAllTasks() {
-        return queryExecute(
-            "
-            SELECT t.id, t.user_id, t.taskName, t.description, t.priority, t.due_date, t.status, u.username
-            FROM tasks t
-            LEFT JOIN users u ON t.user_id = u.id
-            ORDER BY t.created_at DESC
-            ",
-            {},
-            {datasource=this.dsn}
+   
+public struct function createTaskForUser(
+    required string taskName,
+    any userId = "",
+    string description = "",
+    string priority = "medium",
+    string dueDate = "",
+    string status = ""  <!--- optional explicit status --->
+) {
+    var response = {
+        success = false,
+        error = ""
+    };
+
+    try {
+        // --- Validate userId ---
+        var finalUserId = "";
+        var hasValidUser = false;
+        
+        if (!isNull(arguments.userId) && len(trim(arguments.userId)) > 0) {
+            var userIdValue = isArray(arguments.userId) ? arguments.userId[1] : arguments.userId;
+            if (isNumeric(userIdValue)) {
+                finalUserId = val(userIdValue);
+                hasValidUser = true;
+            }
+        }
+
+        // --- Determine task status ---
+        var taskStatus = hasValidUser ? "pending" : "open"; // default logic
+
+        // If explicit status provided, validate against enum
+        if (len(trim(arguments.status))) {
+            var statusValue = lcase(trim(arguments.status));
+            if (listFindNoCase("open,pending,done,delete", statusValue)) {
+                taskStatus = statusValue;
+            }
+        }
+
+        // --- Ensure taskStatus is never blank ---
+        if (!len(taskStatus)) {
+            taskStatus = hasValidUser ? "pending" : "open";
+        }
+
+        // --- Process due date ---
+        var hasDueDate = len(trim(arguments.dueDate)) > 0;
+        
+        // --- SQL Query ---
+        var sql = "
+            INSERT INTO tasks
+            (user_id, taskName, description, priority, due_date, status, created_at)
+            VALUES
+            (:userId, :taskName, :description, :priority, :dueDate, :status, NOW())
+        ";
+        
+        // --- Query Parameters ---
+        var params = {
+            userId = {
+                value = finalUserId,
+                cfsqltype = "cf_sql_integer",
+                null = !hasValidUser
+            },
+            taskName = {
+                value = trim(arguments.taskName),
+                cfsqltype = "cf_sql_varchar"
+            },
+            description = {
+                value = trim(arguments.description),
+                cfsqltype = "cf_sql_varchar"
+            },
+            priority = {
+                value = lcase(trim(arguments.priority)),
+                cfsqltype = "cf_sql_varchar"
+            },
+            dueDate = {
+                value = arguments.dueDate,
+                cfsqltype = "cf_sql_date",
+                null = !hasDueDate
+            },
+            status = {
+                value = taskStatus,
+                cfsqltype = "cf_sql_varchar",
+                null = false  // prevent DB default 'delete'
+            }
+        };
+        
+        // --- Execute Query ---
+        queryExecute(sql, params, {datasource = this.dsn});
+        response.success = true;
+
+    } catch (any e) {
+        response.success = false;
+        response.error = "Error creating task: " & e.message;
+        
+        // Optional logging
+        writeLog(
+            type = "error",
+            file = "task_errors",
+            text = "createTaskForUser failed: " & e.message & " | Detail: " & e.detail
         );
     }
-   /**
- * Creates a new task and optionally assigns it to a user.
- * NOTE: The userId argument is now a string to handle a potentially empty/null value from the form.
- * The model handles conversion to numeric or SQL NULL.
- */
-public struct function createTaskForUser(
-        required string taskName,
-        string userId = "", // <--- CHANGED: Now optional string with a default value
-        string description = "",
-        string priority = "medium",
-        string dueDate = ""
-    ) {
-        var response = {success=false};
-        var dbUserId = ""; // Variable to hold the final ID for the query
-        var taskStatus = "open";
 
-        // --- 1. Process User ID and determine status ---
-        var rawId = arguments.userId;
+    return response;
+}
+
+public query function getOpenTasks() {
+    var sql = "
+        SELECT 
+            id,
+            taskName,
+            description,
+            priority,
+            due_date,
+            created_at
+        FROM tasks
+        WHERE status = 'open' 
+        AND user_id IS NULL
+        ORDER BY 
+            CASE priority
+                WHEN 'high' THEN 1
+                WHEN 'medium' THEN 2
+                WHEN 'low' THEN 3
+            END,
+            due_date ASC
+    ";
+    
+    return queryExecute(sql, {}, {datasource = this.dsn});
+}
+
+public struct function claimOpenTask(required numeric taskId, required numeric userId) {
+    var response = {success = false, error = ""};
+    
+    try {
+        var sql = "
+            UPDATE tasks 
+            SET user_id = :userId, status = 'pending'
+            WHERE id = :taskId 
+            AND status = 'open' 
+            AND user_id IS NULL
+        ";
         
-        // Handle array issue, though better handled in controller, we keep defensive coding
-        if (isArray(rawId)) { rawId = rawId[1]; }
+        var params = {
+            userId = {value = arguments.userId, cfsqltype = "cf_sql_integer"},
+            taskId = {value = arguments.taskId, cfsqltype = "cf_sql_integer"}
+        };
         
-        if (isNumeric(rawId) && len(trim(rawId)) > 0) {
-            // If we have a valid number, use it and set status to pending
-            dbUserId = val(rawId);
-            taskStatus = "pending"; 
-        } else {
-            // No valid User ID provided, set the DSN-aware null value
-            dbUserId = javacast("null", ""); 
-        }
-
-        // --- 2. Build and Execute Query ---
-        try {
-            var sql = "
-                INSERT INTO tasks
-                (user_id, taskName, description, priority, due_date, status, created_at)
-                VALUES
-                (:userId, :taskName, :description, :priority, :dueDate, :status, NOW())
-            ";
-
-            var params = {
-                // Pass the processed dbUserId (numeric or Java Null)
-                userId:      { value=dbUserId, cfsqltype="cf_sql_integer" }, 
-                taskName:    { value=arguments.taskName, cfsqltype="cf_sql_varchar" },
-                description: { value=arguments.description, cfsqltype="cf_sql_varchar" },
-                priority:    { value=arguments.priority, cfsqltype="cf_sql_varchar" },
-                status:      { value=taskStatus, cfsqltype="cf_sql_varchar" }, // <--- Added status
-                // If dueDate is an empty string, pass NULL to the database
-                dueDate:     { value=(len(arguments.dueDate) ? arguments.dueDate : javacast("null", "")), cfsqltype="cf_sql_date" }
-            };
-
-            // Assuming 'this.dsn' is defined in the CFC's init method
-            queryExecute(sql, params, {datasource=this.dsn}); 
+        var result = queryExecute(sql, params, {datasource = this.dsn});
+        
+        if (result.recordCount > 0) {
             response.success = true;
-
-        } catch(any e) {
-            response.success = false;
-            response.error = e.message;
+        } else {
+            response.error = "Task not available or already claimed.";
         }
+        
+    } catch (any e) {
+        response.error = "Error claiming task: " & e.message;
+    }
+    
+    return response;
+}
 
-        return response;
-    } 
 
 }
