@@ -225,8 +225,6 @@ select {
     font-family: inherit;
 }
 
-.landing-box input[type="text"],
-.landing-box input[type="password"],
 .edit-container input[type="text"],
 .edit-container input[type="date"],
 .edit-container textarea,
@@ -236,9 +234,10 @@ select {
 }
 
 .landing-box input[type="text"],
+.landing-box input[type="email"],
 .landing-box input[type="password"] {
-    margin-bottom: 15px;
-}
+    margin-bottom: 10px;
+} 
 
 input[type="text"]:focus,
 input[type="email"]:focus,
@@ -277,6 +276,7 @@ textarea {
    BUTTON STYLES
    ====================================== */
 button {
+    width: 100%;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
     padding: 12px 30px;
@@ -300,9 +300,11 @@ button:active {
 
 .signup-btn,
 .login-btn {
+    width: 100%;
     padding: 14px;
     border-radius: 10px;
     font-size: 1.1em;
+   
 }
 
 .option-button {
@@ -332,9 +334,11 @@ button:active {
 }
 
 .option-button.signup-btn {
+    width: 100%;
     background: white;
     color: #667eea;
     border: 2px solid #667eea;
+    margin: 4px 0;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
 }
 
@@ -869,4 +873,6 @@ tr:last-child td {
         transform: translateY(0);
     }
     
+
+
 }

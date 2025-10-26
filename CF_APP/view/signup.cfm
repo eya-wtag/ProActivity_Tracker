@@ -13,18 +13,15 @@
         
         <form action="index.cfm?action=signup" method="POST">
             <div class="form-group">
-                <label for="username">Username</label>
-                <input type="text" id="username" name="username" placeholder="Choose a username" required>
+                <input type="text" id="username" name="username" placeholder="Username" required>
             </div>
             
             <div class="form-group">
-                <label for="email">Email</label>
-                <input type="email" id="email" name="email" placeholder="your.email@example.com" required>
+                <input type="email" id="email" name="email" placeholder="Email" required>
             </div>
             
             <div class="form-group">
-                <label for="password">Password</label>
-                <input type="password" id="password" name="password" placeholder="Create a strong password" required>
+                <input type="password" id="password" name="password" placeholder="Password" required>
             </div>
             
             <button type="submit" class="signup-btn">Sign Up</button>

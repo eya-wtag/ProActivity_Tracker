@@ -15,6 +15,7 @@ component {
         connectionString: "jdbc:mysql://host.docker.internal:3306/TodoList?characterEncoding=UTF-8&serverTimezone=Etc/UTC&maxReconnects=3",
         username: "yasi",
         password: "encrypted:eb19967fea8cd005ee1ba7ae1ae1dcea8af85eb5f0bf37a177d9f43a999d26f6",
+        
         connectionLimit: -1,
         liveTimeout: 15,
         alwaysSetTimeout: true,

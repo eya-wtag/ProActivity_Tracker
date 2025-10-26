@@ -315,7 +315,7 @@ component displayname="AuthController" {
             path="/"
         );
         
-        location(url="index.cfm?action=main&message=logged_out", addtoken=false);
+        location(url="index.cfm?action=main&message=You have logged out successfully", addtoken=false);
     }
     
     /**
