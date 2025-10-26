@@ -9,7 +9,6 @@ switch (url.action) {
 
     case "signup":
         if (ucase(cgi.request_method) eq "POST") {
-            writeOutput("<p>Processing signup...</p>");
             var controller = createObject("component", "controllers.auth");
             controller.signup();
         } else {
@@ -32,48 +31,67 @@ switch (url.action) {
         break;
 
     case "adminDashboard":
-    if (structKeyExists(session, "user") && session.user.user_role eq "admin") {
-
-        try {
-            var DSN_NAME = "todolist";
-            var userModel = new model.query(dsnName=DSN_NAME);
-            var getUsers = userModel.getAllUsers();
-
-        } catch (any e) {
-            writeOutput("<p style='color:red;'>Error loading users: #e.message#</p>");
+        var controller = createObject("component", "controllers.auth");
+        
+        // Verify authentication using JWT
+        if (!controller.isUserAuthenticated()) {
+            location(url="index.cfm?action=main&error=session_expired", addtoken=false);
+            break;
         }
-
-        include "view/admin_dashboard.cfm";
-
-    } else {
-        location(url="index.cfm?action=login", addtoken=false);
-    }
-
-    break;
- 
-   case "createTask": 
-    if (ucase(cgi.request_method) eq "POST" && structKeyExists(form, "taskName")) {
-        if (structKeyExists(session, "user_id")) {
-            var taskModel = new model.query(dsnName="todolist"); 
-            var finalDueDate = (len(trim(form.dueDate)) gt 0) ? form.dueDate : "";
-            taskModel.createTask(
-                userId=session.user_id,
-                taskName=form.taskName,
-                description=form.description,
-                priority=form.priority,
-                dueDate=finalDueDate
-            );
+        
+        // Verify admin role
+        if (structKeyExists(session, "user") && session.user.user_role eq "admin") {
+            try {
+                var DSN_NAME = "todolist";
+                var userModel = new model.query(dsnName=DSN_NAME);
+                var getUsers = userModel.getAllUsers();
+            } catch (any e) {
+                writeOutput("<p style='color:red;'>Error loading users: #e.message#</p>");
+            }
             
-            location(url="index.cfm?action=dashboard", addtoken=false);
+            include "view/admin_dashboard.cfm";
         } else {
-            location(url="index.cfm?action=login", addtoken=false);
+            location(url="index.cfm?action=dashboard&error=access_denied", addtoken=false);
         }
-    } else {
-        location(url="index.cfm?action=dashboard", addtoken=false);
-    }
-    break;
+        break;
+ 
+    case "createTask": 
+        // Verify authentication
+        var controller = createObject("component", "controllers.auth");
+        if (!controller.isUserAuthenticated()) {
+            location(url="index.cfm?action=main&error=session_expired", addtoken=false);
+            break;
+        }
+        
+        if (ucase(cgi.request_method) eq "POST" && structKeyExists(form, "taskName")) {
+            if (structKeyExists(session, "user_id")) {
+                var taskModel = new model.query(dsnName="todolist"); 
+                var finalDueDate = (len(trim(form.dueDate)) gt 0) ? form.dueDate : "";
+                taskModel.createTask(
+                    userId=session.user_id,
+                    taskName=form.taskName,
+                    description=form.description,
+                    priority=form.priority,
+                    dueDate=finalDueDate
+                );
+                
+                location(url="index.cfm?action=dashboard", addtoken=false);
+            } else {
+                location(url="index.cfm?action=main", addtoken=false);
+            }
+        } else {
+            location(url="index.cfm?action=dashboard", addtoken=false);
+        }
+        break;
 
     case "editTask":
+        // Verify authentication
+        var controller = createObject("component", "controllers.auth");
+        if (!controller.isUserAuthenticated()) {
+            location(url="index.cfm?action=main&error=session_expired", addtoken=false);
+            break;
+        }
+        
         if (ucase(cgi.request_method) eq "POST" && structKeyExists(form, "taskName") && structKeyExists(form, "taskId")) {
             if (structKeyExists(session, "user_id")) {
                 var taskModel = new model.query(dsnName="todolist"); 
@@ -88,7 +106,7 @@ switch (url.action) {
                 );
                 location(url="index.cfm?action=dashboard", addtoken=false);
             } else {
-                location(url="index.cfm?action=login", addtoken=false);
+                location(url="index.cfm?action=main", addtoken=false);
             }
         } 
         else if (structKeyExists(url, "taskId")) {
@@ -105,47 +123,48 @@ switch (url.action) {
         break;
 
     case "deleteTask":
+        // Verify authentication
+        var controller = createObject("component", "controllers.auth");
+        if (!controller.isUserAuthenticated()) {
+            location(url="index.cfm?action=main&error=session_expired", addtoken=false);
+            break;
+        }
+        
         if (structKeyExists(url, "taskId") && structKeyExists(session, "user_id")) {
-            
             var taskModel = new model.query(dsnName="todolist"); 
             taskModel.deleteTask(url.taskId, session.user_id); 
             location(url="index.cfm?action=dashboard", addtoken=false);
         } else {
-       
             location(url="index.cfm?action=dashboard", addtoken=false);
         }
         break;
+        
     case "markDone":
-  
+        // Verify authentication
+        var controller = createObject("component", "controllers.auth");
+        if (!controller.isUserAuthenticated()) {
+            location(url="index.cfm?action=main&error=session_expired", addtoken=false);
+            break;
+        }
+        
         var DSN_NAME = "todolist"; 
         
         if (structKeyExists(url, "taskId") && structKeyExists(session, "user_id")) {
             var taskModel = new model.query(dsnName=DSN_NAME); 
-
-    
             taskModel.createDoneTask(
                 taskId=url.taskId,
                 userId=session.user_id 
             );
             location(url="index.cfm?action=dashboard", addtoken=false);
         } else {
-     
             location(url="index.cfm?action=dashboard", addtoken=false);
         }
         break;
 
     case "logout":
-
-        sessionInvalidate();
-        cfcookie(
-            name="auth_token",
-            value="",
-            expires="now",  
-            path="/"
-        );
-        location(url="index.cfm?action=main", addtoken=false);
+        var controller = createObject("component", "controllers.auth");
+        controller.logout();
         break;
-
 
     case "api":
         include "api/api.cfm";
@@ -154,76 +173,100 @@ switch (url.action) {
     case "no_account":
         include "view/no_account.cfm";
         break;
-    
 
     case "assignTaskByAdmin":
-
+        // Verify authentication
+        var controller = createObject("component", "controllers.auth");
+        if (!controller.isUserAuthenticated()) {
+            location(url="index.cfm?action=main&error=session_expired", addtoken=false);
+            break;
+        }
+        
         if (ucase(cgi.request_method) eq "POST" && structKeyExists(form, "taskName")) {
-
             if (structKeyExists(session, "user") && session.user.user_role eq "admin") {
-
-                // Set defaults for optional fields, ensuring they exist for the model call
+                // Set defaults for optional fields
                 cfparam(name="form.description", default="", type="string");
                 cfparam(name="form.priority", default="medium", type="string");
                 cfparam(name="form.dueDate", default="", type="string");
-                cfparam(name="form.userId", default="", type="string"); // Ensure userId exists
+                cfparam(name="form.userId", default="", type="string");
 
                 try {
-                    // Get userId safely (Handle array case defensively, though less necessary now)
+                    // Get userId safely
                     var rawUserId = structKeyExists(form, "userId") ? form.userId : "";
                     if (isArray(rawUserId)) rawUserId = rawUserId[1];
 
-
-                    // Create task (Model handles ALL data processing and status logic)
+                    // Create task
                     var taskModel = new model.query(dsnName="todolist");
-                    
-                    // Pass the raw form values directly to the model
                     var result = taskModel.createTaskForUser(
-                        userId = rawUserId, // <--- PASSING RAW VALUE
+                        userId = rawUserId,
                         taskName = form.taskName,
                         description = form.description,
                         priority = form.priority,
-                        dueDate = form.dueDate // Model handles null/date formatting
+                        dueDate = form.dueDate
                     );
 
                     if (result.success) {
-                        location(url="index.cfm?action=adminDashboard", addtoken=false);
+                        location(url="index.cfm?action=adminDashboard&message=Task assigned successfully", addtoken=false);
                     } else {
                         writeOutput("<p style='color:red;'>Error: #result.error#</p>");
                     }
 
                 } catch(any e) {
-                    // Note: The model should handle most errors, this catches instantiation/call errors
                     writeOutput("<p style='color:red;'>Exception: #e.message#</p>");
                 }
 
             } else {
-                location(url="index.cfm?action=login", addtoken=false);
+                location(url="index.cfm?action=dashboard&error=access_denied", addtoken=false);
             }
 
         } else {
             location(url="index.cfm?action=adminDashboard", addtoken=false);
         }
-
-    break;
+        break;
     
     case "claimTask":
-    if (structKeyExists(url, "taskId") AND structKeyExists(session, "user_id")) {
-        var taskModel = createObject("component", "model.query").init(dsnName="todolist");
-        var result = taskModel.claimOpenTask(url.taskId, session.user_id);
+        // Verify authentication
+        var controller = createObject("component", "controllers.auth");
+        if (!controller.isUserAuthenticated()) {
+            location(url="index.cfm?action=main&error=session_expired", addtoken=false);
+            break;
+        }
+        
+        if (structKeyExists(url, "taskId") AND structKeyExists(session, "user_id")) {
+            var taskModel = createObject("component", "model.query").init(dsnName="todolist");
+            var result = taskModel.claimOpenTask(url.taskId, session.user_id);
+            
+            if (result.success) {
+                location(url="index.cfm?action=dashboard&message=Task claimed successfully!", addtoken=false);
+            } else {
+                location(url="index.cfm?action=dashboard&error=" & result.error, addtoken=false);
+            }
+        } else {
+            location(url="index.cfm?action=dashboard", addtoken=false);
+        }
+        break;
+    
+    case "refreshToken":
+        // Refresh JWT token to extend session
+        var controller = createObject("component", "controllers.auth");
+        var result = controller.refreshToken();
         
         if (result.success) {
-            location(url="index.cfm?action=dashboard&message=Task claimed successfully!", addtoken=false);
+            writeOutput(serializeJSON({
+                success: true,
+                message: "Token refreshed successfully"
+            }));
         } else {
-            location(url="index.cfm?action=dashboard&error=" & result.error, addtoken=false);
+            writeOutput(serializeJSON({
+                success: false,
+                error: result.error
+            }));
         }
-    } else {
-        location(url="index.cfm?action=dashboard", addtoken=false);
-    }
-    break;
+        break;
 
     default:
-        writeOutput("Page not found.");
-
+        writeOutput("<h1>Page not found</h1>");
+        writeOutput("<p>The page you are looking for does not exist.</p>");
+        writeOutput("<a href='index.cfm?action=main'>Go to Home</a>");
 }
 </cfscript>
