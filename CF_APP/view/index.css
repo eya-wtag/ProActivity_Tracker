@@ -225,8 +225,6 @@ select {
     font-family: inherit;
 }
 
-.landing-box input[type="text"],
-.landing-box input[type="password"],
 .edit-container input[type="text"],
 .edit-container input[type="date"],
 .edit-container textarea,
@@ -236,9 +234,10 @@ select {
 }
 
 .landing-box input[type="text"],
+.landing-box input[type="email"],
 .landing-box input[type="password"] {
-    margin-bottom: 15px;
-}
+    margin-bottom: 10px;
+} 
 
 input[type="text"]:focus,
 input[type="email"]:focus,
@@ -277,6 +276,7 @@ textarea {
    BUTTON STYLES
    ====================================== */
 button {
+    width: 100%;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
     padding: 12px 30px;
@@ -300,9 +300,11 @@ button:active {
 
 .signup-btn,
 .login-btn {
+    width: 100%;
     padding: 14px;
     border-radius: 10px;
     font-size: 1.1em;
+   
 }
 
 .option-button {
@@ -332,9 +334,11 @@ button:active {
 }
 
 .option-button.signup-btn {
+    width: 100%;
     background: white;
     color: #667eea;
     border: 2px solid #667eea;
+    margin: 4px 0;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
 }
 
@@ -824,4 +828,51 @@ tr:last-child td {
     .cancel-link {
         width: 100%;
     }
+    /* ======================================
+   RESPONSIVE DESIGN
+   ====================================== */
+    @media (max-width: 768px) {
+        /* ... existing responsive styles ... */
+    }
+
+    @media (max-width: 480px) {
+        /* ... existing responsive styles ... */
+    }
+
+    /* ======================================
+    OPEN TASKS & CLAIM BUTTON
+    ====================================== */
+    .open-task {
+        background: #fef3c7;
+        border-color: #fbbf24;
+    }
+
+    .open-task::before {
+        background: #fbbf24;
+    }
+
+    .claim-btn {
+        display: inline-block;
+        padding: 10px 20px;
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: white;
+        text-decoration: none;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 0.95em;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 10px rgba(16, 185, 129, 0.3);
+    }
+
+    .claim-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(16, 185, 129, 0.5);
+    }
+
+    .claim-btn:active {
+        transform: translateY(0);
+    }
+    
+
+
 }

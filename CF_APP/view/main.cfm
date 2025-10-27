@@ -29,8 +29,11 @@
         <div class="divider">
             <span>OR</span>
         </div>
+        <p class="login-link">
+            Don't have an account? 
+            <a href="index.cfm?action=signup">Sign Up</a>
+        </p>
 
-        <a href="index.cfm?action=signup" class="option-button signup-btn">Create New Account</a>
     </div>
 </body>
 </html>

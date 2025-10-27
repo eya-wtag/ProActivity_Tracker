@@ -32,14 +32,15 @@
                     <div class="form-container">
                         <form action="index.cfm?action=assignTaskByAdmin" method="post">
                             <div class="form-group">
-                                <label for="userId">Select User:</label>
-                                <select id="userId" name="userId" required>
-                                    <option value="">-- Select User --</option>
-                                    <cfoutput query="getUsers">
-                                        <option value="#getUsers.id#">#getUsers.username#</option>
-                                    </cfoutput>
-                                </select>
-                            </div>
+                            <label for="userId">Select User (Optional):</label>
+                            <select id="userId" name="userId">
+                                <option value="">-- No User (Open Task) --</option>
+                                <cfoutput query="getUsers">
+                                    <option value="#getUsers.id#">#getUsers.username#</option>
+                                </cfoutput>
+                            </select>
+                        </div>
+
 
                             <div class="form-group">
                                 <label for="taskName">Task Name:</label>
@@ -62,8 +63,42 @@
 
                             <div class="form-group">
                                 <label for="dueDate">Due Date:</label>
-                                <input type="date" id="dueDate" name="dueDate" value="<cfoutput>#dateFormat(now(), 'yyyy-mm-dd')#</cfoutput>">
+                                <input 
+                                    type="date" 
+                                    id="dueDate" 
+                                    name="dueDate" 
+                                    value="<cfoutput>#dateFormat(now(), 'yyyy-mm-dd')#</cfoutput>"
+                                    readonly
+                                >
                             </div>
+
+                            <script>
+                            document.addEventListener("DOMContentLoaded", function() {
+                                const prioritySelect = document.getElementById("priority");
+                                const dueDateInput = document.getElementById("dueDate");
+
+                                function updateDueDate() {
+                                    let daysToAdd = 0;
+                                    switch(prioritySelect.value) {
+                                        case "low": daysToAdd = 1; break;
+                                        case "medium": daysToAdd = 2; break;
+                                        case "high": daysToAdd = 5; break;
+                                    }
+
+                                    const today = new Date();
+                                    today.setDate(today.getDate() + daysToAdd);
+
+                                    const year = today.getFullYear();
+                                    const month = ("0" + (today.getMonth() + 1)).slice(-2);
+                                    const day = ("0" + today.getDate()).slice(-2);
+
+                                    dueDateInput.value = `${year}-${month}-${day}`;
+                                }
+                                updateDueDate();
+                                prioritySelect.addEventListener("change", updateDueDate);
+                            });
+                            </script>
+
 
                             <button type="submit">Assign Task</button>
                         </form>
@@ -108,7 +143,12 @@
                                     <cfloop query="allTasks">
                                         <tr>
                                             <td class="task-id">#allTasks.id#</td>
-                                            <td class="user-name">#allTasks.username#</td>
+                                            <td class="user-name">
+                                                <cfoutput>
+                                                    #len(trim(allTasks.username)) ? allTasks.username : '<span style="color: ##999; font-style: italic;">Not Assigned</span>'#
+                                                </cfoutput>
+
+                                            </td>
                                             <td>#allTasks.taskName#</td>
                                             <td>
                                                 <span class="priority-badge priority-#lcase(allTasks.priority)#">
@@ -127,8 +167,12 @@
                                                     <span class="status-badge status-done">✅ Done</span>
                                                 <cfelseif allTasks.status eq "pending">
                                                     <span class="status-badge status-pending">🕒 Pending</span>
-                                                <cfelse>
+                                                 <cfelseif allTasks.status eq "open">
+                                                    <span class="status-badge status-open">📋 Open</span>
+                                                <cfelseif allTasks.status eq "delete">
                                                     <span class="status-badge status-deleted">❌ Deleted</span>
+                                                <cfelse>
+                                                    <span class="status-badge status-deleted">Unknown</span>
                                                 </cfif>
                                             </td>
                                             <td class="action-links">
