@@ -95,7 +95,7 @@
 
 <hr>
 
-<!--- <!--- <h3>Deleted/Archived Tasks:</h3>
+ <h3>Deleted/Archived Tasks:</h3>
 
 <cfif structKeyExists(session, "user_id")>
     <cfscript>
@@ -124,7 +124,7 @@
 </cfif>
 
 <hr>
----> --->
+
 <form action="index.cfm?action=logout" method="post">
     <button type="submit">Logout</button>
 </form>

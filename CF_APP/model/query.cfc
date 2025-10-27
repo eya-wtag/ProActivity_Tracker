@@ -29,14 +29,11 @@ component {
             );
             
         } catch (any e) {
-            // Log the detailed error (optional but recommended)
-            // log.error("Error in getTasksByUser: " & e.message & " - " & e.detail);
-            
-            // Re-throw a controlled, application-level error
+   
             throw(
                 type="Database.ReadError", 
                 message="Failed to retrieve tasks for user ID " & arguments.userId,
-                detail=e.message // Pass the underlying error message for debugging
+                detail=e.message 
             );
         }
         
@@ -239,4 +236,176 @@ component {
         
         return tasksQuery;
     }
+    public query function getAllTasks() {
+    try {
+        var sql = "
+            SELECT 
+                t.id,
+                t.user_id,
+                t.taskName,
+                t.description,
+                t.priority,
+                t.due_date,
+                t.status,
+                t.created_at,
+                u.username
+            FROM tasks t
+            LEFT JOIN users u ON t.user_id = u.id
+            ORDER BY t.created_at DESC
+        ";
+
+        var result = queryExecute(
+            sql,
+            {},
+            { datasource = this.dsn }
+        );
+
+        return result;
+
+    } catch (any e) {
+        throw(
+            type = "Database.QueryError",
+            message = "Error in getAllTasks: " & e.message
+        );
+    }
+}
+public struct function createTaskByAdmin(
+    required numeric userId,
+    required string taskName,
+    string description = "",
+    string priority = "medium",
+    string dueDate = ""
+) {
+    var response = {success=false};
+
+    try {
+        // If dueDate is empty, pass CFML null
+        var dbDueDate = (len(trim(dueDate)) eq 0) ? null : dateFormat(dueDate, "yyyy-mm-dd");
+
+        queryExecute(
+            "INSERT INTO tasks (user_id, taskName, description, priority, due_date, status, created_at)
+             VALUES (:userId, :taskName, :description, :priority, :dueDate, 0, NOW())",
+            {
+                userId: { value=userId, cfsqltype="cf_sql_integer" },
+                taskName: { value=taskName, cfsqltype="cf_sql_varchar" },
+                description: { value=description, cfsqltype="cf_sql_varchar" },
+                priority: { value=priority, cfsqltype="cf_sql_varchar" },
+                dueDate: { value=dbDueDate, cfsqltype="cf_sql_date" }  <!--- null if no date --->
+            },
+            { datasource=this.dsn }
+        );
+
+        response.success = true;
+    } catch (any e) {
+        response.success = false;
+        response.error = e.message;
+    }
+    
+    return response;
+}
+
+
+    property name="dsn" type="string";
+
+    // Initialize component with DSN
+    public any function init(required string dsnName) {
+        this.dsn = dsnName;
+        return this;
+    }
+
+    // Create a task for a specific user
+    public struct function createTaskForUser(
+        required numeric userId,
+        required string taskName,
+        string description = "",
+        string priority = "medium",
+        string dueDate = ""
+    ) {
+        var response = {success=false};
+        try {
+            var sql = "
+                INSERT INTO tasks
+                (user_id, taskName, description, priority, due_date, status, created_at)
+                VALUES
+                (:userId, :taskName, :description, :priority, :dueDate, 'pending', NOW())
+            ";
+
+            var params = {
+                userId: { value=arguments.userId, cfsqltype="cf_sql_integer" },
+                taskName: { value=arguments.taskName, cfsqltype="cf_sql_varchar" },
+                description: { value=arguments.description, cfsqltype="cf_sql_varchar" },
+                priority: { value=arguments.priority, cfsqltype="cf_sql_varchar" },
+                dueDate: { value=(len(arguments.dueDate) ? arguments.dueDate : null), cfsqltype="cf_sql_date" }
+            };
+
+            queryExecute(sql, params, {datasource=this.dsn});
+            response.success = true;
+
+        } catch(any e) {
+            response.success = false;
+            response.error = e.message;
+        }
+
+        return response;
+    }
+
+    // Get all users
+    public query function getAllUsers() {
+        return queryExecute(
+            "SELECT id, username FROM users where user_role='user' ORDER BY username",
+            {},
+            {datasource=this.dsn}
+        );
+    }
+
+    // Get all tasks with username
+    public query function getAllTasks() {
+        return queryExecute(
+            "
+            SELECT t.id, t.user_id, t.taskName, t.description, t.priority, t.due_date, t.status, u.username
+            FROM tasks t
+            LEFT JOIN users u ON t.user_id = u.id
+            ORDER BY t.created_at DESC
+            ",
+            {},
+            {datasource=this.dsn}
+        );
+    }
+    
+
+public struct function createTaskForUser(
+        required numeric userId,
+        required string taskName,
+        string description = "",
+        string priority = "medium",
+        string dueDate = ""
+    ) {
+        var response = {success=false};
+        try {
+            var sql = "
+                INSERT INTO tasks
+                (user_id, taskName, description, priority, due_date, status, created_at)
+                VALUES
+                (:userId, :taskName, :description, :priority, :dueDate, 'pending', NOW())
+            ";
+
+            var params = {
+                userId: { value=arguments.userId, cfsqltype="cf_sql_integer" },
+                taskName: { value=arguments.taskName, cfsqltype="cf_sql_varchar" },
+                description: { value=arguments.description, cfsqltype="cf_sql_varchar" },
+                priority: { value=arguments.priority, cfsqltype="cf_sql_varchar" },
+                dueDate: { value=(len(arguments.dueDate) ? arguments.dueDate : null), cfsqltype="cf_sql_date" }
+            };
+
+            queryExecute(sql, params, {datasource=this.dsn});
+            response.success = true;
+
+        } catch(any e) {
+            response.success = false;
+            response.error = e.message;
+        }
+
+        return response;
+    }
+
 }
