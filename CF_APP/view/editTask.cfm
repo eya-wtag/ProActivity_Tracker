@@ -1,53 +1,71 @@
-<cfoutput>
-<h2>Edit Task</h2>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Task - Task Manager</title>
+    <link rel="stylesheet" href="view/index.css">
+</head>
+<body class="auth-page">
+    <div class="edit-container">
+        <h2>✏️ Edit Task</h2>
 
-<form method="POST" action="index.cfm?action=editTask">
-    <!-- Hidden field for task ID -->
-    <input type="hidden" name="taskId" value="#taskDetails.id#">
+        <cfoutput>
+        <form method="POST" action="index.cfm?action=editTask">
+            <input type="hidden" name="taskId" value="#taskDetails.id#">
 
-    <div>
-        <label for="taskName">Task Name:</label><br>
-        <input 
-            type="text" 
-            id="taskName" 
-            name="taskName" 
-            value="#encodeForHtml(taskDetails.taskname)#" 
-            required
-        >
+            <div class="form-group">
+                <label for="taskName">Task Name:</label>
+                <input 
+                    type="text" 
+                    id="taskName" 
+                    name="taskName" 
+                    value="#encodeForHtml(taskDetails.taskname)#" 
+                    placeholder="Enter task name"
+                    required
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="description">Description:</label>
+                <textarea 
+                    id="description" 
+                    name="description"
+                    placeholder="Enter task description"
+                >#encodeForHtml(taskDetails.description)#</textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="priority">Priority:</label>
+                <select id="priority" name="priority">
+                    <option value="Low" <cfif taskDetails.priority eq "Low">selected</cfif>>
+                        🔵 Low
+                    </option>
+                    <option value="Medium" <cfif taskDetails.priority eq "Medium">selected</cfif>>
+                        🟡 Medium
+                    </option>
+                    <option value="High" <cfif taskDetails.priority eq "High">selected</cfif>>
+                        🔴 High
+                    </option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="dueDate">Due Date:</label>
+                <input 
+                    type="date" 
+                    id="dueDate" 
+                    name="dueDate"
+                    value="#dateFormat(taskDetails.due_date, 'yyyy-mm-dd')#"
+                >
+            </div>
+
+            <div class="button-group">
+                <button type="submit">💾 Update Task</button>
+                <a href="index.cfm?action=dashboard" class="cancel-link">Cancel</a>
+            </div>
+        </form>
+        </cfoutput>
     </div>
-
-    <div>
-        <label for="description">Description:</label><br>
-        <textarea 
-            id="description" 
-            name="description"
-            rows="4" 
-            cols="40"
-        >#encodeForHtml(taskDetails.description)#</textarea>
-    </div>
-
-    <div>
-        <label for="priority">Priority:</label><br>
-        <select id="priority" name="priority">
-            <option value="Low"     <cfif taskDetails.priority eq "Low">selected</cfif>>Low</option>
-            <option value="Medium"  <cfif taskDetails.priority eq "Medium">selected</cfif>>Medium</option>
-            <option value="High"    <cfif taskDetails.priority eq "High">selected</cfif>>High</option>
-        </select>
-    </div>
-
-    <div>
-        <label for="dueDate">Due Date:</label><br>
-        <input 
-            type="date" 
-            id="dueDate" 
-            name="dueDate"
-            value="#dateFormat(taskDetails.due_date, 'yyyy-mm-dd')#"
-        >
-    </div>
-
-    <div style="margin-top: 10px;">
-        <button type="submit">💾 Update Task</button>
-        <a href="index.cfm?action=dashboard" style="margin-left:10px;">Cancel</a>
-    </div>
-</form>
-</cfoutput>
+</body>
+</html>

@@ -29,14 +29,11 @@ component {
             );
             
         } catch (any e) {
-            // Log the detailed error (optional but recommended)
-            // log.error("Error in getTasksByUser: " & e.message & " - " & e.detail);
-            
-            // Re-throw a controlled, application-level error
+   
             throw(
                 type="Database.ReadError", 
                 message="Failed to retrieve tasks for user ID " & arguments.userId,
-                detail=e.message // Pass the underlying error message for debugging
+                detail=e.message 
             );
         }
         
@@ -239,44 +236,207 @@ component {
         
         return tasksQuery;
     }
-    public query function searchTasks(
-        required numeric userId,
-        string keyword = "",
-        string status = "",
-        string priority = "",
-        string sortBy = "due_date",
-        string sortOrder = "ASC"
-    ) {
-
+    public query function getAllTasks() {
+    try {
         var sql = "
-            SELECT *
-            FROM tasks
-            WHERE user_id = :userId
+            SELECT 
+                t.id,
+                t.user_id,
+                t.taskName,
+                t.description,
+                t.priority,
+                t.due_date,
+                t.status,
+                t.created_at,
+                u.username
+            FROM tasks t
+            LEFT JOIN users u ON t.user_id = u.id
+            ORDER BY t.created_at DESC
         ";
-        var params = { userId = arguments.userId };
 
-        // Keyword search
-        if (len(trim(arguments.keyword))) {
-            sql &= " AND (taskname LIKE :keyword OR description LIKE :keyword)";
-            params.keyword = "%" & arguments.keyword & "%";
-        }
+        var result = queryExecute(
+            sql,
+            {},
+            { datasource = this.dsn }
+        );
 
-        // Status filter
-        if (len(trim(arguments.status))) {
-            sql &= " AND is_completed = :status";
-            params.status = arguments.status;
-        }
+        return result;
 
-        // Priority filter
-        if (len(trim(arguments.priority))) {
-            sql &= " AND priority = :priority";
-            params.priority = arguments.priority;
-        }
-
-        // Sorting
-        sql &= " ORDER BY " & arguments.sortBy & " " & arguments.sortOrder;
-
-        return queryExecute(sql, params, {datasource: "todolist"});
+    } catch (any e) {
+        throw(
+            type = "Database.QueryError",
+            message = "Error in getAllTasks: " & e.message
+        );
     }
+}
+    // Get all users
+    public query function getAllUsers() {
+        return queryExecute(
+            "SELECT id, username FROM users where user_role='user' ORDER BY username",
+            {},
+            {datasource=this.dsn}
+        );
+    }
+
+   
+public struct function createTaskForUser(
+    required string taskName,
+    any userId = "",
+    string description = "",
+    string priority = "medium",
+    string dueDate = "",
+    string status = ""  <!--- optional explicit status --->
+) {
+    var response = {
+        success = false,
+        error = ""
+    };
+
+    try {
+        // --- Validate userId ---
+        var finalUserId = "";
+        var hasValidUser = false;
+        
+        if (!isNull(arguments.userId) && len(trim(arguments.userId)) > 0) {
+            var userIdValue = isArray(arguments.userId) ? arguments.userId[1] : arguments.userId;
+            if (isNumeric(userIdValue)) {
+                finalUserId = val(userIdValue);
+                hasValidUser = true;
+            }
+        }
+
+        // --- Determine task status ---
+        var taskStatus = hasValidUser ? "pending" : "open"; // default logic
+
+        // If explicit status provided, validate against enum
+        if (len(trim(arguments.status))) {
+            var statusValue = lcase(trim(arguments.status));
+            if (listFindNoCase("open,pending,done,delete", statusValue)) {
+                taskStatus = statusValue;
+            }
+        }
+
+        // --- Ensure taskStatus is never blank ---
+        if (!len(taskStatus)) {
+            taskStatus = hasValidUser ? "pending" : "open";
+        }
+
+        // --- Process due date ---
+        var hasDueDate = len(trim(arguments.dueDate)) > 0;
+        
+        // --- SQL Query ---
+        var sql = "
+            INSERT INTO tasks
+            (user_id, taskName, description, priority, due_date, status, created_at)
+            VALUES
+            (:userId, :taskName, :description, :priority, :dueDate, :status, NOW())
+        ";
+        
+        // --- Query Parameters ---
+        var params = {
+            userId = {
+                value = finalUserId,
+                cfsqltype = "cf_sql_integer",
+                null = !hasValidUser
+            },
+            taskName = {
+                value = trim(arguments.taskName),
+                cfsqltype = "cf_sql_varchar"
+            },
+            description = {
+                value = trim(arguments.description),
+                cfsqltype = "cf_sql_varchar"
+            },
+            priority = {
+                value = lcase(trim(arguments.priority)),
+                cfsqltype = "cf_sql_varchar"
+            },
+            dueDate = {
+                value = arguments.dueDate,
+                cfsqltype = "cf_sql_date",
+                null = !hasDueDate
+            },
+            status = {
+                value = taskStatus,
+                cfsqltype = "cf_sql_varchar",
+                null = false  // prevent DB default 'delete'
+            }
+        };
+        
+        // --- Execute Query ---
+        queryExecute(sql, params, {datasource = this.dsn});
+        response.success = true;
+
+    } catch (any e) {
+        response.success = false;
+        response.error = "Error creating task: " & e.message;
+        
+        // Optional logging
+        writeLog(
+            type = "error",
+            file = "task_errors",
+            text = "createTaskForUser failed: " & e.message & " | Detail: " & e.detail
+        );
+    }
+
+    return response;
+}
+
+public query function getOpenTasks() {
+    var sql = "
+        SELECT 
+            id,
+            taskName,
+            description,
+            priority,
+            due_date,
+            created_at
+        FROM tasks
+        WHERE status = 'open' 
+        AND user_id IS NULL
+        ORDER BY 
+            CASE priority
+                WHEN 'high' THEN 1
+                WHEN 'medium' THEN 2
+                WHEN 'low' THEN 3
+            END,
+            due_date ASC
+    ";
+    
+    return queryExecute(sql, {}, {datasource = this.dsn});
+}
+
+public struct function claimOpenTask(required numeric taskId, required numeric userId) {
+    var response = {success = false, error = ""};
+    
+    try {
+        var sql = "
+            UPDATE tasks 
+            SET user_id = :userId, status = 'pending'
+            WHERE id = :taskId 
+            AND status = 'open' 
+            AND user_id IS NULL
+        ";
+        
+        var params = {
+            userId = {value = arguments.userId, cfsqltype = "cf_sql_integer"},
+            taskId = {value = arguments.taskId, cfsqltype = "cf_sql_integer"}
+        };
+        
+        var result = queryExecute(sql, params, {datasource = this.dsn});
+        
+        if (result.recordCount > 0) {
+            response.success = true;
+        } else {
+            response.error = "Task not available or already claimed.";
+        }
+        
+    } catch (any e) {
+        response.error = "Error claiming task: " & e.message;
+    }
+    
+    return response;
+}
+
 
 }
