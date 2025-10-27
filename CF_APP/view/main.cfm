@@ -1,80 +1,39 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-    <title>Welcome - WorkList App</title>
-    <style>
-        body { font-family: sans-serif; background-color: #f4f4f9; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
-        .landing-box { 
-            background: #fff; 
-            padding: 40px; 
-            border-radius: 12px; 
-            box-shadow: 0 10px 20px rgba(0,0,0,0.15); 
-            width: 100%; 
-            max-width: 400px; 
-            text-align: center; 
-        }
-        h1 { 
-            color: #0056b3; 
-            margin-bottom: 30px; 
-            font-size: 2em; 
-            border-bottom: 2px solid #ddd;
-            padding-bottom: 10px;
-        }
-        .option-button {
-            display: block;
-            width: 100%; /* Keeps the width consistent */
-            height: 50px; /* Example: set a fixed height */
-            padding: 15px;
-            margin-top: 15px;
-            border: none;
-            border-radius: 8px;
-            font-size: 1.1em;
-            text-decoration: none;
-            font-weight: bold;
-            box-sizing: border-box; /* This is crucial! It ensures padding and border are included in the element's total width and height. */
-            transition: background-color 0.2s, box-shadow 0.2s;
-}
-        .login-btn {
-            background-color: #28a745;
-            color: white;
-        }
-        .login-btn:hover {
-            background-color: #1e8745;
-        }
-        .signup-btn {
-            background-color: #1e80eaf2;
-            color: white;
-        }
-        .signup-btn:hover {
-            background-color: #0056b3;
-        }
-        .message { margin-top: 20px; color: green; font-weight: bold; }
-        .message-error { margin-top: 20px; color: red; font-weight: bold; }
-    </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome - Task Manager</title>
+    <link rel="stylesheet" href="view/index.css">
 </head>
-<body>
-
+<body class="auth-page">
     <div class="landing-box">
-        <h1>Welcome to your Daily ProActivity</h1>
- 
+        <div class="welcome-icon">📋</div>
+        <h1>Welcome to Task Manager</h1>
+        <p class="subtitle">Stay organized and boost your productivity</p>
+
         <cfif structKeyExists(URL, "message")>
             <p class="message"><cfoutput>#URL.message#</cfoutput></p>
         <cfelseif structKeyExists(URL, "error")>
             <p class="message-error">Login Failed. Please try again.</p>
         </cfif>
 
-        <p>Please provide your username and password:</p>
+        <div class="form-container">
+            <form method="post" action="index.cfm?action=login">
+                <input type="text" name="username" placeholder="Username" required>
+                <input type="password" name="password" placeholder="Password" required>
+                <button type="submit" class="option-button login-btn">Log In</button>
+            </form>
+        </div>
 
-    
-        <form method="post" action="index.cfm?action=login">
-            <input type="text" name="username" placeholder="Username" required>
-            <input type="password" name="password" placeholder="Password" required>
-            <button type="submit" class="option-button login-btn">Log In</button>
-        </form>
+        <div class="divider">
+            <span>OR</span>
+        </div>
+        <p class="login-link">
+            Don't have an account? 
+            <a href="index.cfm?action=signup">Sign Up</a>
+        </p>
 
-
-        <a href="index.cfm?action=signup" class="option-button signup-btn">Sign Up</a>
-        
     </div>
-
 </body>
 </html>
