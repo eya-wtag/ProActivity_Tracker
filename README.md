@@ -47,6 +47,6 @@ Enter the following address in your browser:
 ---
 ### ✨ Project Demo
 
-![ Final Project Demo ](https://docs.google.com/videos/d/1q_0p-ldIqTn_qyQbpG62zKXcHa0RC_pSJcz_pn5QB2g/edit?usp=sharing)
+https://docs.google.com/videos/d/1q_0p-ldIqTn_qyQbpG62zKXcHa0RC_pSJcz_pn5QB2g/edit?usp=sharing
 
 ---
